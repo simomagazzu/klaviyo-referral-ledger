@@ -1,0 +1,119 @@
+@import "tailwindcss";
+
+/* =============================================================================
+   LOOP design system (v3 · Precisione) mapped onto shadcn/Tailwind tokens.
+   Source: design/prototype/_ds/…/colors_and_type.css. See DESIGN.md.
+   Navy-led, white and navy do the work. Poppins only. Light mode only.
+   ============================================================================= */
+
+@custom-variant dark (&:is(.dark *));
+
+@theme inline {
+  --color-background: var(--background);
+  --color-foreground: var(--foreground);
+  --font-sans: var(--font-poppins), -apple-system, "Segoe UI", Helvetica, Arial, sans-serif;
+  --color-ring: var(--ring);
+  --color-input: var(--input);
+  --color-border: var(--border);
+  --color-destructive: var(--destructive);
+  --color-accent-foreground: var(--accent-foreground);
+  --color-accent: var(--accent);
+  --color-muted-foreground: var(--muted-foreground);
+  --color-muted: var(--muted);
+  --color-secondary-foreground: var(--secondary-foreground);
+  --color-secondary: var(--secondary);
+  --color-primary-foreground: var(--primary-foreground);
+  --color-primary: var(--primary);
+  --color-card-foreground: var(--card-foreground);
+  --color-card: var(--card);
+  --color-popover-foreground: var(--popover-foreground);
+  --color-popover: var(--popover);
+  --radius-sm: calc(var(--radius) - 4px);
+  --radius-md: calc(var(--radius) - 2px);
+  --radius-lg: var(--radius);
+  --radius-xl: calc(var(--radius) + 4px);
+
+  /* LOOP palette */
+  --color-navy: #192575;
+  --color-navy-700: #121b5c;
+  --color-navy-900: #0b1240;
+  --color-navy-50: #f3f4fa;
+  --color-navy-100: #e6e9f4;
+  --color-navy-200: #cdd2e8;
+  --color-blue: #2074a3;
+  --color-blue-50: #eaf2f8;
+  --color-ink: #0e1236;
+  --color-ink-muted: #4a5072;
+  --color-on-navy: #ffffff;
+  --color-rule: rgba(25, 37, 117, 0.12);
+  --color-rule-strong: rgba(25, 37, 117, 0.52);
+  --color-danger: #b8352e;
+  --color-danger-50: #fbedec;
+  --color-warning: #8f620a;
+  --color-warning-50: #fbf3e2;
+  --color-success: #16794f;
+  --color-success-50: #e7f4ee;
+
+  /* LOOP radii (nested rule: outer = inner + padding) */
+  --radius-tag: 6px;
+  --radius-control: 12px;
+  --radius-card: 20px;
+  --radius-panel: 28px;
+
+  /* LOOP motion */
+  --ease-snap: cubic-bezier(0.2, 0, 0, 1);
+  --ease-settle: cubic-bezier(0.16, 1, 0.3, 1);
+  --ease-drift: cubic-bezier(0.4, 0, 1, 1);
+}
+
+:root {
+  --radius: 0.75rem;
+  --background: #ffffff;
+  --foreground: #0e1236;
+  --card: #ffffff;
+  --card-foreground: #0e1236;
+  --popover: #ffffff;
+  --popover-foreground: #0e1236;
+  --primary: #192575;
+  --primary-foreground: #ffffff;
+  --secondary: #f3f4fa;
+  --secondary-foreground: #192575;
+  --muted: #f3f4fa;
+  --muted-foreground: #4a5072;
+  --accent: #f3f4fa;
+  --accent-foreground: #192575;
+  --destructive: #b8352e;
+  --border: rgba(25, 37, 117, 0.12);
+  --input: rgba(25, 37, 117, 0.52);
+  --ring: #192575;
+}
+
+@layer base {
+  * {
+    @apply border-border;
+  }
+  html {
+    -webkit-text-size-adjust: 100%;
+  }
+  body {
+    @apply bg-background text-foreground antialiased;
+    line-height: 1.58;
+    font-variant-numeric: lining-nums;
+  }
+  :focus-visible {
+    outline: 2px solid var(--color-navy);
+    outline-offset: 3px;
+  }
+  a {
+    color: var(--color-navy);
+  }
+  @media (prefers-reduced-motion: reduce) {
+    *,
+    *::before,
+    *::after {
+      animation-duration: 1ms !important;
+      animation-iteration-count: 1 !important;
+      transition-duration: 1ms !important;
+    }
+  }
+}

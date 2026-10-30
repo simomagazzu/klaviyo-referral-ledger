@@ -1,0 +1,41 @@
+# dependencies
+node_modules
+.pnpm-store
+
+# next.js
+.next/
+out/
+
+# typescript
+*.tsbuildinfo
+
+# production
+build
+
+# env files
+.env
+.env*.local
+
+# debug
+npm-debug.log*
+yarn-debug.log*
+yarn-error.log*
+.pnpm-debug.log*
+
+# IDE
+.idea
+*.swp
+*.swo
+.DS_Store
+
+# uploads (local dev storage)
+public/uploads/
+
+# turbopack
+.turbo
+
+# planning artifacts (ephemeral runtime state)
+.planning/
+
+# local Claude Code permissions (machine-specific)
+.claude/settings.local.json

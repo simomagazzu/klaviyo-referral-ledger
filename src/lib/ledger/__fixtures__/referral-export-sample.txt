@@ -1,0 +1,86 @@
+# Fictional sample for setup and tests. Not a real Klaviyo export.
+
+Partner Account Name
+
+Customer Name
+
+Revenue Share Start Date
+
+Revenue Share End Date
+
+Payment Date
+
+Product
+
+Customer Payment Amount Received
+
+Revenue Share Earnings %
+
+Split %
+
+Partner Earnings
+
+Example Partner
+northwind.example
+Jul 31, 2025
+Aug 19, 2026
+Aug 31, 2025
+SMS
+$200.00
+15%
+$30.00
+Example Partner
+northwind.example
+Aug 19, 2026
+Nov 30, 2026
+Sep 19, 2026
+SMS
+$130.00
+15%
+100%
+$19.50
+Example Partner
+northwind.example
+Aug 29, 2025
+Dec 29, 2026
+Sep 29, 2026
+Email
+-$100.00
+15%
+-$15.00
+Example Partner
+harbor.example
+Jan 1, 2026
+May 1, 2027
+Feb 1, 2026
+Email
+$100.00
+15%
+$15.00
+Example Partner
+harbor.example
+Jan 1, 2026
+Jan 1, 2028
+Feb 1, 2026
+Email
+$200.00
+20%
+$40.00
+Example Partner
+cedar.example
+Apr 13, 2026
+Apr 13, 2028
+May 13, 2026
+SMS
+$80.00
+20%
+$16.00
+Example Partner
+maple.example
+Jan 10, 2025
+May 20, 2026
+Apr 10, 2026
+SMS
+$50.00
+15%
+$7.50

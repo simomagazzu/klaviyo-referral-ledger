@@ -1,0 +1,25 @@
+# =============================================================================
+# LOCAL DEVELOPMENT DATABASE
+# =============================================================================
+# PostgreSQL for the ledger, reachable only from this computer (127.0.0.1).
+# Data lives in the postgres_data volume and survives restarts.
+#
+# Start:  docker compose up -d
+# Stop:   docker compose down
+# Reset:  docker compose down -v  (DELETES THE LEDGER — download a backup first)
+# =============================================================================
+
+services:
+  postgres:
+    image: postgres:17
+    environment:
+      POSTGRES_DB: app_dev
+      POSTGRES_USER: dev_user
+      POSTGRES_PASSWORD: dev_password
+    ports:
+      - "127.0.0.1:5432:5432"
+    volumes:
+      - postgres_data:/var/lib/postgresql/data
+
+volumes:
+  postgres_data:

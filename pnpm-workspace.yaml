@@ -1,0 +1,10 @@
+overrides:
+  "@types/react": 19.2.5
+  "@types/react-dom": 19.2.3
+allowBuilds:
+  esbuild: true
+  sharp: true
+  unrs-resolver: true
+  "@prisma/engines": false
+  prisma: false
+  msw: false

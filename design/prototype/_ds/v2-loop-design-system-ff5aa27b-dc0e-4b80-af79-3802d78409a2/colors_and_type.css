@@ -1,0 +1,201 @@
+@font-face{font-family:"Poppins";font-style:italic;font-weight:400;font-display:swap;src:url("fonts/Poppins-400i.woff2") format("woff2")}
+@font-face{font-family:"Poppins";font-style:normal;font-weight:300;font-display:swap;src:url("fonts/Poppins-300.woff2") format("woff2")}
+@font-face{font-family:"Poppins";font-style:normal;font-weight:400;font-display:swap;src:url("fonts/Poppins-400.woff2") format("woff2")}
+@font-face{font-family:"Poppins";font-style:normal;font-weight:500;font-display:swap;src:url("fonts/Poppins-500.woff2") format("woff2")}
+@font-face{font-family:"Poppins";font-style:normal;font-weight:600;font-display:swap;src:url("fonts/Poppins-600.woff2") format("woff2")}
+@font-face{font-family:"Poppins";font-style:normal;font-weight:700;font-display:swap;src:url("fonts/Poppins-700.woff2") format("woff2")}
+/* =========================================================================
+   LOOP Design System — v3 · Precisione
+   Poppins only. Hierarchy by weight and size.
+   Navy-led, white and navy do the work, teal is rare.
+   This file is the ONLY place raw values live. Everything else uses var().
+   ========================================================================= */
+
+:root{
+  /* ---- Brand ---- */
+  --loop-navy:#192575;
+  --loop-navy-700:#121B5C;          /* hover / pressed on primary */
+  --loop-navy-900:#0B1240;
+  --loop-blue:#2074A3;
+  --loop-teal:#26D0CE;              /* rare: ≤1 accent moment per screen */
+  --loop-teal-700:#0E7C82;          /* text-safe teal: 5.0:1 on white */
+  --loop-logo-start:#1A2980;        /* real logo gradient start */
+  --loop-logo-gradient:linear-gradient(90deg,#1A2980 0%,#26D0CE 100%); /* @kind other */
+
+  /* ---- Tinted neutrals ---- */
+  --loop-navy-50:#F3F4FA;
+  --loop-navy-100:#E6E9F4;
+  --loop-navy-200:#CDD2E8;
+  --loop-blue-50:#EAF2F8;
+  --loop-teal-50:#E7F8F8;
+
+  /* ---- Data viz (charts in slides/reports): ordered, never decorative ---- */
+  --loop-data-1:var(--loop-navy);
+  --loop-data-2:var(--loop-blue);
+  --loop-data-3:var(--loop-teal-700);
+  --loop-data-4:#7FA6D6;            /* fills only, never text */
+  --loop-data-5:var(--loop-navy-200);
+
+  /* ---- Text ---- */
+  --loop-ink:#0E1236;
+  --loop-ink-muted:#4A5072;
+  --loop-on-navy:#FFFFFF;
+  --loop-on-navy-muted:#C3C8E6;
+
+  /* ---- Surfaces ---- */
+  --loop-bg:#FFFFFF;
+  --loop-surface:var(--loop-navy-50);
+  --loop-surface-2:var(--loop-navy-100);
+  --loop-surface-inverse:var(--loop-navy);
+
+  /* ---- Rules ---- */
+  --loop-rule:rgba(25,37,117,0.12);           /* decorative dividers */
+  --loop-rule-strong:rgba(25,37,117,0.52);    /* control boundaries, ≥3:1 on white + navy-50 */
+  --loop-rule-on-navy:rgba(255,255,255,0.22);
+  --loop-rule-on-navy-strong:rgba(255,255,255,0.64);
+
+  /* ---- Status ---- */
+  --loop-danger:#B8352E;
+  --loop-danger-50:#FBEDEC;
+  --loop-warning:#8F620A;
+  --loop-warning-50:#FBF3E2;
+  --loop-success:#16794F;
+  --loop-success-50:#E7F4EE;
+
+  /* ---- Deltas (tables, reports, dashboards) ---- */
+  --loop-delta-up:var(--loop-success);
+  --loop-delta-down:var(--loop-danger);
+  --loop-delta-flat:var(--loop-ink-muted);
+
+  /* ---- Focus ---- */
+  --loop-focus-color:var(--loop-navy);
+  --loop-focus-color-inverse:var(--loop-teal);
+  --loop-focus-width:2px;
+  --loop-focus-offset:3px;
+  --loop-focus:var(--loop-focus-width) solid var(--loop-focus-color); /* @kind other */
+
+  /* ---- Type ---- */
+  --loop-font:"Poppins",-apple-system,"Segoe UI",Helvetica,Arial,sans-serif;
+  --loop-font-mono:var(--loop-font); /* kept for compatibility: no mono font in the system */
+  --loop-wdth-condensed:100%; /* @kind font */
+  --loop-wdth-normal:100%; /* @kind font */
+  --loop-wdth-wide:100%; /* @kind font */
+  --loop-weight-regular:400; /* @kind font */
+  --loop-weight-medium:500; /* @kind font */
+  --loop-weight-semibold:600; /* @kind font */
+  --loop-weight-bold:700; /* @kind font */
+
+  --loop-text-xs:0.75rem;      /* 12 */
+  --loop-text-sm:0.875rem;     /* 14 */
+  --loop-text-md:1rem;         /* 16 */
+  --loop-text-lg:1.125rem;     /* 18 */
+  --loop-text-xl:1.3125rem;    /* 21 */
+  --loop-text-2xl:1.625rem;    /* 26 */
+  --loop-text-3xl:clamp(1.75rem,1.45rem + 0.9vw,2.125rem); /* @kind spacing */  /* 28–34 */
+  --loop-text-4xl:clamp(2rem,1.45rem + 1.9vw,2.75rem); /* @kind spacing */      /* 32–44 */
+  --loop-text-5xl:clamp(2.375rem,1.5rem + 3vw,3.5rem); /* @kind spacing */      /* 38–56 */
+  --loop-text-6xl:clamp(2.625rem,1.4rem + 4.3vw,4.5rem); /* @kind spacing */    /* 42–72 */
+  --loop-text-hero:clamp(3rem,0.9rem + 6.6vw,7.5rem); /* @kind spacing */ /* 48–120 · homepage hero, closing band */
+
+  --loop-lh-display:1.04; /* @kind font */
+  --loop-lh-heading:1.14; /* @kind font */
+  --loop-lh-snug:1.32; /* @kind font */
+  --loop-lh-body:1.58; /* @kind font */
+  --loop-track-display:-0.028em; /* @kind font */
+  --loop-track-heading:-0.016em; /* @kind font */
+  --loop-track-normal:0; /* @kind font */
+  --loop-track-numeric:-0.01em; /* @kind font */
+
+  /* ---- Spacing (4px base) ---- */
+  --loop-space-1:4px;
+  --loop-space-2:8px;
+  --loop-space-3:12px;
+  --loop-space-4:16px;
+  --loop-space-5:20px;
+  --loop-space-6:24px;
+  --loop-space-7:32px;
+  --loop-space-8:40px;
+  --loop-space-9:48px;
+  --loop-space-10:64px;
+  --loop-space-11:96px;
+  --loop-space-12:128px;
+  --loop-section:var(--loop-space-12);        /* default section padding */
+  --loop-section-tight:var(--loop-space-11);
+  --loop-gutter:var(--loop-space-7);
+  --loop-container:1240px;
+  --loop-measure:62ch; /* @kind other */
+  --loop-frame-pad:8px;                       /* nested-radius padding: 18 = 12 + 6 */
+
+  /* ---- Sizes ---- */
+  --loop-control-md:48px;
+  --loop-control-sm:40px;
+  --loop-icon-sm:16px;
+  --loop-icon-md:20px;
+  --loop-icon-lg:24px;
+  --loop-header-h:76px;
+  --loop-hairline:1px;
+
+  /* ---- Radii (nested rule: outer = inner + padding) ---- */
+  --loop-radius-xs:6px;
+  --loop-radius-sm:12px;
+  --loop-radius-md:20px;
+  --loop-radius-lg:28px;
+  --loop-radius-round:50%;
+
+  /* ---- Elevation: one shadow, overlays only ---- */
+  --loop-shadow-overlay:0 16px 40px rgba(14,18,54,0.16),0 2px 6px rgba(14,18,54,0.08);
+
+  /* ---- Motion ---- */
+  --loop-ease:cubic-bezier(0.2,0,0,1); /* @kind other */
+  --loop-ease-out:cubic-bezier(0.16,1,0.3,1); /* @kind other */
+  --loop-ease-in:cubic-bezier(0.4,0,1,1); /* @kind other */
+  --loop-dur-instant:80ms; /* @kind other */
+  --loop-dur-fast:140ms; /* @kind other */
+  --loop-dur-base:240ms; /* @kind other */
+  --loop-dur-slow:400ms; /* @kind other */
+  --loop-dur-count:1200ms; /* @kind other */
+  --loop-stagger:60ms; /* @kind other */
+  --loop-reveal-y:12px;
+}
+
+@media (max-width:45em){
+  :root{--loop-section:var(--loop-space-10);--loop-section-tight:var(--loop-space-9);--loop-gutter:var(--loop-space-5);--loop-header-h:64px}
+}
+@media (prefers-reduced-motion:reduce){
+  :root{--loop-dur-instant:1ms; /* @kind other */ --loop-dur-fast:1ms; /* @kind other */ --loop-dur-base:1ms; /* @kind other */ --loop-dur-slow:1ms; /* @kind other */ --loop-dur-count:1ms; /* @kind other */ --loop-stagger:0ms; /* @kind other */ --loop-reveal-y:0px}
+  *,*::before,*::after{animation-duration:1ms!important;animation-iteration-count:1!important;transition-duration:1ms!important;scroll-behavior:auto!important}
+}
+
+/* ---- Base ---- */
+*,*::before,*::after{box-sizing:border-box}
+html{-webkit-text-size-adjust:100%}
+html,body{margin:0;font-family:var(--loop-font);font-size:var(--loop-text-md);line-height:var(--loop-lh-body);color:var(--loop-ink);background:var(--loop-bg);-webkit-font-smoothing:antialiased;font-variant-numeric:lining-nums}
+img,svg{display:block;max-width:100%}
+button,input,select,textarea{font:inherit;color:inherit}
+:focus{outline:none}
+:focus-visible{outline:var(--loop-focus-width) solid var(--loop-focus-color);outline-offset:var(--loop-focus-offset)}
+.loop-on-navy :focus-visible{outline-color:var(--loop-focus-color-inverse)}
+
+/* ---- Semantic type roles ---- */
+.loop-display{font-size:var(--loop-text-6xl);font-weight:var(--loop-weight-semibold);font-stretch:var(--loop-wdth-wide);line-height:var(--loop-lh-display);letter-spacing:var(--loop-track-display);margin:0}
+h1,.loop-h1{font-size:var(--loop-text-5xl);font-weight:var(--loop-weight-semibold);font-stretch:var(--loop-wdth-wide);line-height:var(--loop-lh-display);letter-spacing:var(--loop-track-display);margin:0}
+h2,.loop-h2{font-size:var(--loop-text-4xl);font-weight:var(--loop-weight-semibold);font-stretch:var(--loop-wdth-normal);line-height:var(--loop-lh-heading);letter-spacing:var(--loop-track-heading);margin:0}
+h3,.loop-h3{font-size:var(--loop-text-2xl);font-weight:var(--loop-weight-semibold);line-height:var(--loop-lh-heading);letter-spacing:var(--loop-track-heading);margin:0}
+h4,.loop-h4{font-size:var(--loop-text-lg);font-weight:var(--loop-weight-semibold);line-height:var(--loop-lh-snug);margin:0}
+p{margin:0}
+.loop-lead{font-size:var(--loop-text-xl);line-height:var(--loop-lh-snug);color:var(--loop-ink-muted)}
+.loop-body{font-size:var(--loop-text-md);line-height:var(--loop-lh-body)}
+.loop-small{font-size:var(--loop-text-sm);line-height:var(--loop-lh-snug)}
+.loop-caption{font-size:var(--loop-text-xs);line-height:var(--loop-lh-snug);color:var(--loop-ink-muted)}
+.loop-stat{font-family:var(--loop-font-mono);font-size:var(--loop-text-4xl);font-weight:var(--loop-weight-medium);font-stretch:var(--loop-wdth-condensed);line-height:1;letter-spacing:var(--loop-track-numeric);font-variant-numeric:tabular-nums lining-nums}
+.loop-mono{font-family:var(--loop-font-mono);font-variant-numeric:tabular-nums;letter-spacing:0}
+.loop-label{font-size:var(--loop-text-sm);font-weight:var(--loop-weight-semibold);line-height:var(--loop-lh-snug)}
+.loop-muted{color:var(--loop-ink-muted)}
+.loop-on-navy{background:var(--loop-surface-inverse);color:var(--loop-on-navy)}
+.loop-on-navy .loop-muted,.loop-on-navy .loop-lead,.loop-on-navy .loop-caption{color:var(--loop-on-navy-muted)}
+.loop-placeholder{font-weight:var(--loop-weight-medium);background:var(--loop-warning-50);color:var(--loop-warning);padding:0 var(--loop-space-1);border-radius:var(--loop-radius-xs)}
+.loop-sr-only{position:absolute;width:1px;height:1px;padding:0;margin:-1px;overflow:hidden;clip:rect(0,0,0,0);white-space:nowrap;border:0}
+
+a{color:var(--loop-navy);text-decoration:underline;text-decoration-thickness:var(--loop-hairline);text-underline-offset:0.2em;text-decoration-color:var(--loop-rule-strong)}
+a:hover{text-decoration-color:currentColor}
+.loop-on-navy a{color:var(--loop-on-navy);text-decoration-color:var(--loop-rule-on-navy-strong)}

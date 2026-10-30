@@ -1,0 +1,870 @@
+<!DOCTYPE html>
+<html>
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<script src="./support.js"></script>
+</head>
+<body>
+<x-dc>
+<helmet>
+  <title>Klaviyo referral ledger</title>
+  <link rel="stylesheet" href="_ds/v2-loop-design-system-ff5aa27b-dc0e-4b80-af79-3802d78409a2/colors_and_type.css">
+  <link rel="stylesheet" href="_ds/v2-loop-design-system-ff5aa27b-dc0e-4b80-af79-3802d78409a2/components.css">
+  <link rel="stylesheet" href="_ds/v2-loop-design-system-ff5aa27b-dc0e-4b80-af79-3802d78409a2/styles.css">
+  <script src="_ds/v2-loop-design-system-ff5aa27b-dc0e-4b80-af79-3802d78409a2/_ds_bundle.js"></script>
+  <script src="ledger-core.js"></script>
+  <style>
+    body{margin:0;background:#fff;color:var(--loop-ink);font-family:var(--loop-font)}
+    a{color:var(--loop-navy)} a:hover{color:var(--loop-navy-700)}
+    [role="button"]:focus-visible,button:focus-visible{outline:2px solid var(--loop-navy);outline-offset:3px}
+  </style>
+</helmet>
+
+<div style="max-width:1240px;margin:0 auto;padding:32px 32px 96px;display:flex;flex-direction:column;gap:32px;font-variant-numeric:tabular-nums">
+
+  <header style="display:flex;flex-wrap:wrap;align-items:center;justify-content:space-between;gap:12px 24px">
+    <div style="display:flex;align-items:center;gap:20px">
+      <img src="assets/logo-loop-color.svg" alt="Loop srl" style="height:28px;width:auto;display:block">
+      <span style="width:1px;height:28px;background:var(--loop-rule)"></span>
+      <h1 style="margin:0;font-size:22px;font-weight:600;color:var(--loop-navy);letter-spacing:-0.01em">Klaviyo referral ledger</h1>
+    </div>
+    <div style="font-size:14px;color:var(--loop-ink-muted)">{{ freshness }}</div>
+  </header>
+
+  <nav class="lp-tabs__list" role="tablist" aria-label="Views" style="margin-top:-8px">
+    <button class="lp-tab" role="tab" aria-selected="{{ tabQ }}" onClick="{{ goQuarters }}">Quarters</button>
+    <button class="lp-tab" role="tab" aria-selected="{{ tabC }}" onClick="{{ goClients }}">Clients</button>
+    <button class="lp-tab" role="tab" aria-selected="{{ tabK }}" onClick="{{ goCheck }}">{{ checkTab }}</button>
+    <button class="lp-tab" role="tab" aria-selected="{{ tabD }}" onClick="{{ goData }}">Add data</button>
+  </nav>
+
+  <sc-if value="{{ showEmpty }}" hint-placeholder-val="{{ false }}">
+    <div style="padding:48px 24px;background:var(--loop-navy-50);border-radius:var(--loop-radius-lg);display:flex;flex-direction:column;align-items:flex-start;gap:16px">
+      <div style="font-size:18px;font-weight:600;color:var(--loop-navy)">The ledger is empty</div>
+      <div style="font-size:16px;color:var(--loop-ink-muted);max-width:60ch">Paste the Referral Revenue Share export from the Klaviyo Partner Portal, or open a saved ledger file.</div>
+      <x-import component-from-global-scope="LOOPDesignSystem_29467e.Button" on-click="{{ goData }}" hint-size="140px,44px">Add data</x-import>
+    </div>
+  </sc-if>
+
+  <!-- QUARTERS -->
+  <sc-if value="{{ showQuarters }}" hint-placeholder-val="{{ true }}">
+    <section style="display:flex;flex-direction:column;gap:24px">
+      <div style="display:flex;flex-wrap:wrap;align-items:flex-end;gap:24px 40px">
+        <div style="flex:none;min-width:max-content;white-space:nowrap"><x-import component-from-global-scope="LOOPDesignSystem_29467e.ChoiceChips" label="Year" options="{{ years }}" value="{{ yearStr }}" on-change="{{ setYear }}" hint-size="360px,72px"></x-import></div>
+        <sc-if value="{{ qNotAll }}" hint-placeholder-val="{{ true }}">
+        <div role="group" aria-label="Period" style="display:grid;grid-template-columns:repeat(5,minmax(110px,1fr));gap:8px;flex:1;min-width:min(100%,620px)">
+          <sc-for list="{{ qtiles }}" as="t" hint-placeholder-count="5">
+            <button aria-pressed="{{ t.selected }}" onClick="{{ t.pick }}" style="display:flex;flex-direction:column;align-items:flex-start;gap:2px;padding:12px 16px;border-radius:var(--loop-radius-sm);border:1px solid {{ t.border }};background:{{ t.bg }};color:{{ t.fg }};font:inherit;cursor:pointer;text-align:left;transition:background var(--loop-dur-fast) var(--loop-ease),border-color var(--loop-dur-fast) var(--loop-ease)">
+              <span style="font-size:14px;font-weight:600">{{ t.label }}</span>
+              <span style="font-size:16px;font-weight:500;font-variant-numeric:tabular-nums">{{ t.amount }}</span>
+            </button>
+          </sc-for>
+        </div>
+        </sc-if>
+      </div>
+
+      <div style="display:flex;flex-wrap:wrap;align-items:flex-end;justify-content:space-between;gap:16px 48px;padding-bottom:8px">
+        <div style="display:flex;flex-wrap:wrap;align-items:flex-end;gap:16px 48px">
+          <div style="display:flex;flex-direction:column;gap:4px">
+            <span style="font-size:14px;font-weight:600;color:var(--loop-ink-muted)">{{ qTitle }}</span>
+            <span style="font-size:48px;line-height:1.05;font-weight:500;color:var(--loop-navy);letter-spacing:-0.02em">{{ qPayout }}</span>
+          </div>
+          <div style="display:flex;flex-wrap:wrap;gap:8px 32px;padding-bottom:6px;font-size:14px;color:var(--loop-ink-muted)">
+            <span style="white-space:nowrap">Customer paid <b style="color:var(--loop-ink);font-weight:600;font-size:16px">{{ qPaid }}</b></span>
+            <span style="white-space:nowrap">Payments <b style="color:var(--loop-ink);font-weight:600;font-size:16px">{{ qPayments }}</b></span>
+            <span style="white-space:nowrap">Referrals <b style="color:var(--loop-ink);font-weight:600;font-size:16px">{{ qRefCount }}</b></span>
+            <sc-if value="{{ qHasFlags }}" hint-placeholder-val="{{ false }}">
+              <span style="color:var(--loop-danger);font-weight:600;white-space:nowrap">{{ qFlagText }}</span>
+            </sc-if>
+          </div>
+        </div>
+        <x-import component-from-global-scope="LOOPDesignSystem_29467e.Button" variant="secondary" size="sm" icon="download" on-click="{{ exportCSV }}" hint-size="150px,36px">{{ csvLabel }}</x-import>
+      </div>
+
+      <sc-if value="{{ yearMode }}" hint-placeholder-val="{{ false }}">
+        <figure style="margin:0;display:flex;flex-direction:column;gap:12px;padding:24px;border:1px solid var(--loop-rule);border-radius:var(--loop-radius-lg)">
+          <div role="list" style="display:grid;grid-template-columns:repeat(4,minmax(0,1fr));gap:16px;align-items:end">
+            <sc-for list="{{ chart }}" as="b" hint-placeholder-count="4">
+              <button role="listitem" onClick="{{ b.pick }}" title="{{ b.deltaTitle }}" style="display:flex;flex-direction:column;justify-content:flex-end;align-items:stretch;gap:8px;height:300px;padding:0;border:0;background:none;font:inherit;color:var(--loop-ink);cursor:pointer;text-align:center;border-radius:var(--loop-radius-sm)" style-hover="background:var(--loop-navy-50)">
+                <span style="font-size:16px;font-weight:600;color:var(--loop-navy);font-variant-numeric:tabular-nums">{{ b.amount }}</span>
+                <sc-if value="{{ b.hasDelta }}" hint-placeholder-val="{{ false }}"><span style="font-size:13px;font-weight:600;color:{{ b.dFg }}">{{ b.delta }}</span></sc-if>
+                <span style="display:block;margin:0 auto;width:min(100%,96px);height:{{ b.h }}px;background:var(--loop-data-1);border-radius:var(--loop-radius-xs) var(--loop-radius-xs) 0 0"></span>
+              </button>
+            </sc-for>
+          </div>
+          <div style="display:grid;grid-template-columns:repeat(4,minmax(0,1fr));gap:16px;border-top:1px solid var(--loop-rule-strong);padding-top:8px">
+            <sc-for list="{{ chart }}" as="b" hint-placeholder-count="4"><span style="text-align:center;font-size:14px;font-weight:600;color:var(--loop-ink-muted)">{{ b.label }}</span></sc-for>
+          </div>
+          <figcaption style="font-size:13px;color:var(--loop-ink-muted)">{{ chartNote }}</figcaption>
+        </figure>
+      </sc-if>
+
+      <div style="display:flex;flex-direction:column;gap:16px;padding:20px 24px;background:var(--loop-navy-50);border-radius:var(--loop-radius-md)">
+        <div style="display:flex;flex-wrap:wrap;align-items:flex-end;gap:16px 32px">
+          <div style="width:min(100%,280px)">
+            <x-import component-from-global-scope="LOOPDesignSystem_29467e.Input" label="Search client" type="search" value="{{ qSearch }}" on-change="{{ onQSearch }}" hint-size="100%,72px"></x-import>
+          </div>
+          <x-import component-from-global-scope="LOOPDesignSystem_29467e.FilterChips" label="Service" options="{{ products }}" value="{{ qProduct }}" counts="{{ qProdCounts }}" on-change="{{ setQProduct }}" hint-size="560px,40px"></x-import>
+        </div>
+        <div style="display:flex;flex-wrap:wrap;align-items:center;justify-content:space-between;gap:12px 32px">
+          <sc-if value="{{ hasBatch }}" hint-placeholder-val="{{ false }}">
+            <x-import component-from-global-scope="LOOPDesignSystem_29467e.FilterChips" label="Show" options="{{ qShowOptions }}" value="{{ qShow }}" counts="{{ qShowCounts }}" on-change="{{ setQShow }}" hint-size="420px,40px"></x-import>
+          </sc-if>
+          <sc-if value="{{ qFiltered }}" hint-placeholder-val="{{ false }}">
+            <div style="display:flex;flex-wrap:wrap;align-items:center;gap:8px 16px;font-size:13px;color:var(--loop-ink-muted)">
+              <span>{{ qFilterNote }}</span>
+              <x-import component-from-global-scope="LOOPDesignSystem_29467e.Button" variant="link" on-click="{{ clearQFilters }}" hint-size="90px,24px">Clear filters</x-import>
+            </div>
+          </sc-if>
+        </div>
+      </div>
+
+      <div style="overflow-x:auto;border:1px solid var(--loop-rule);border-radius:var(--loop-radius-md)">
+        <div role="table" style="min-width:1120px;font-size:14px">
+          <div role="row" style="display:grid;grid-template-columns:minmax(150px,1.3fr) 110px 56px minmax(280px,2.2fr) 80px 120px 100px 72px;gap:0 16px;padding:12px 20px;background:var(--loop-navy-50);font-weight:600;color:var(--loop-ink-muted);font-size:13px">
+            <span role="columnheader">Customer</span><span role="columnheader">Product</span><span role="columnheader" style="text-align:right">Rate</span><span role="columnheader">Window</span><span role="columnheader" style="text-align:right">Months expected</span><span role="columnheader" style="text-align:right">Customer paid ($)</span><span role="columnheader" style="text-align:right">Payout ($)</span><span role="columnheader" style="text-align:right">Actual %</span>
+          </div>
+          <sc-if value="{{ qNoRows }}" hint-placeholder-val="{{ false }}">
+            <div style="padding:32px 20px;color:var(--loop-ink-muted)">{{ qEmptyText }}</div>
+          </sc-if>
+          <sc-for list="{{ qrows }}" as="r" hint-placeholder-count="8">
+            <div style="border-top:1px solid var(--loop-rule)">
+              <div role="button" tabIndex="0" aria-expanded="{{ r.open }}" onClick="{{ r.toggle }}" onKeyDown="{{ r.onKey }}" style="display:grid;grid-template-columns:minmax(150px,1.3fr) 110px 56px minmax(280px,2.2fr) 80px 120px 100px 72px;gap:0 16px;padding:14px 20px;align-items:start;cursor:pointer;background:{{ r.rowBg }}" style-hover="background:var(--loop-navy-50)">
+                <span style="display:flex;align-items:flex-start;gap:8px;font-weight:600;color:var(--loop-ink);min-width:0">
+                  <span style="display:flex;padding-top:2px;color:var(--loop-navy);transition:transform var(--loop-dur-fast) var(--loop-ease);transform:rotate({{ r.rot }}deg)"><x-import component-from-global-scope="LOOPDesignSystem_29467e.Icon" name="chevron-down" size="sm" hint-size="16px,16px"></x-import></span>
+                  <span style="display:flex;flex-direction:column;gap:4px;min-width:0">
+                    <span style="overflow-wrap:anywhere">{{ r.customer }}</span>
+                    <sc-if value="{{ r.isNew }}" hint-placeholder-val="{{ false }}"><span style="width:fit-content;font-size:12px;font-weight:600;padding:1px 8px;border-radius:var(--loop-radius-xs);background:var(--loop-blue-50);color:var(--loop-blue)">{{ r.newText }}</span></sc-if>
+                  </span>
+                </span>
+                <span>{{ r.product }}</span>
+                <span style="text-align:right">{{ r.rate }}</span>
+                <span style="display:flex;flex-direction:column;gap:4px">
+                  <span style="display:flex;flex-wrap:wrap;align-items:center;gap:8px">
+                    <span style="white-space:nowrap">{{ r.window }}</span>
+                    <span style="font-size:12px;font-weight:{{ r.moWeight }};padding:2px 8px;border-radius:var(--loop-radius-xs);background:{{ r.moBg }};color:{{ r.moFg }};white-space:nowrap">{{ r.months }}</span>
+                    <sc-if value="{{ r.hasAnswer }}" hint-placeholder-val="{{ false }}"><span style="font-size:12px;padding:2px 8px;border-radius:var(--loop-radius-xs);background:var(--loop-navy-100);color:var(--loop-ink);white-space:nowrap">{{ r.answerLabel }}</span></sc-if>
+                  </span>
+                  <sc-if value="{{ r.joined }}" hint-placeholder-val="{{ false }}"><span style="font-size:12px;color:var(--loop-ink-muted)">{{ r.joinedText }}</span></sc-if>
+                  <sc-for list="{{ r.issues }}" as="i" hint-placeholder-count="0"><span style="font-size:12px;font-weight:500;color:{{ i.tone }}">{{ i.text }}</span></sc-for>
+                  <sc-if value="{{ r.hasResolved }}" hint-placeholder-val="{{ false }}"><span style="width:fit-content;font-size:12px;font-weight:600;padding:1px 8px;border-radius:var(--loop-radius-xs);background:var(--loop-success-50);color:var(--loop-success)">Resolved</span></sc-if>
+                  <sc-if value="{{ r.hasQuestion }}" hint-placeholder-val="{{ false }}"><span style="font-size:12px;font-weight:500;color:var(--loop-warning)">Open question: did this client churn? Payouts stopped before the window ended.</span></sc-if>
+                </span>
+                <span style="text-align:right">{{ r.expected }}</span>
+                <span style="text-align:right">{{ r.paid }}</span>
+                <span style="text-align:right;font-weight:600;color:var(--loop-navy)">{{ r.payout }}</span>
+                <span style="text-align:right;font-weight:{{ r.pctWeight }};color:{{ r.pctFg }}">{{ r.actual }}</span>
+              </div>
+              <sc-if value="{{ r.open }}" hint-placeholder-val="{{ false }}">
+                <div style="background:var(--loop-navy-50);padding:4px 20px 16px 44px;display:flex;flex-direction:column;gap:12px">
+                  <div>
+                    <div style="display:grid;grid-template-columns:130px minmax(260px,1fr) 140px 120px 90px;gap:0 16px;padding:10px 0;font-size:12px;font-weight:600;color:var(--loop-ink-muted);border-bottom:1px solid var(--loop-rule)">
+                      <span>Paid on</span><span>Window in export</span><span style="text-align:right">Customer paid ($)</span><span style="text-align:right">Payout ($)</span><span style="text-align:right">Actual %</span>
+                    </div>
+                    <sc-for list="{{ r.lines }}" as="l" hint-placeholder-count="3">
+                      <div style="display:grid;grid-template-columns:130px minmax(260px,1fr) 140px 120px 90px;gap:0 16px;padding:8px 0;font-size:13px;border-bottom:1px solid var(--loop-rule)">
+                        <span style="display:flex;align-items:center;gap:6px">{{ l.paidOn }}<sc-if value="{{ l.isNew }}" hint-placeholder-val="{{ false }}"><span style="font-size:11px;font-weight:600;color:var(--loop-blue)">New</span></sc-if></span><span style="white-space:nowrap">{{ l.window }}</span><span style="text-align:right">{{ l.paid }}</span><span style="text-align:right">{{ l.payout }}</span><span style="text-align:right;color:{{ l.pctFg }}">{{ l.actual }}</span>
+                      </div>
+                    </sc-for>
+                  </div>
+                  <div><x-import component-from-global-scope="LOOPDesignSystem_29467e.Button" variant="link" icon="arrow-right" on-click="{{ r.openClient }}" hint-size="160px,24px">{{ r.openClientText }}</x-import></div>
+                </div>
+              </sc-if>
+            </div>
+          </sc-for>
+          <div role="row" style="display:grid;grid-template-columns:minmax(150px,1.3fr) 110px 56px minmax(280px,2.2fr) 80px 120px 100px 72px;gap:0 16px;padding:14px 20px;background:var(--loop-navy-900);color:var(--loop-on-navy);font-weight:600">
+            <span style="grid-column:1 / span 5">{{ qTotalLabel }}</span>
+            <span style="text-align:right">{{ qPaidN }}</span>
+            <span style="text-align:right">{{ qPayoutN }}</span>
+            <span style="text-align:right">{{ qActual }}</span>
+          </div>
+        </div>
+      </div>
+
+      <div style="display:flex;flex-direction:column;gap:6px;font-size:13px;color:var(--loop-ink-muted);max-width:90ch">
+        <span>Quarter = calendar quarter of the payment date. Payout per line = Revenue Share Earnings % × customer payment.</span>
+        <span>{{ expectedLegend }}</span>
+        <span>Red: window length differs from months expected, a month of this quarter inside the window has no line, or the actual payout % differs from the rate. Your answers on the client page clear what they explain. A referral Klaviyo exports as several rows is joined into one.</span>
+      </div>
+    </section>
+  </sc-if>
+
+  <!-- TO CHECK -->
+  <sc-if value="{{ showCheck }}" hint-placeholder-val="{{ false }}">
+    <section style="display:flex;flex-direction:column;gap:24px">
+      <sc-if value="{{ hasChecks }}" hint-placeholder-val="{{ true }}">
+        <div style="font-size:16px;color:var(--loop-ink-muted);max-width:70ch">{{ checkIntro }}</div>
+      </sc-if>
+      <sc-if value="{{ noChecks }}" hint-placeholder-val="{{ false }}">
+        <div style="padding:32px 24px;background:var(--loop-navy-50);border-radius:var(--loop-radius-lg);font-size:16px;color:var(--loop-ink-muted)">Nothing to check. Every red check and open question has been answered or dismissed.</div>
+      </sc-if>
+      <div style="display:flex;flex-direction:column;border:1px solid var(--loop-rule);border-radius:var(--loop-radius-md);overflow:hidden">
+        <sc-for list="{{ checks }}" as="k" hint-placeholder-count="6">
+          <div style="display:grid;grid-template-columns:minmax(220px,1fr) minmax(0,2.2fr) auto;gap:12px 32px;align-items:start;padding:20px 24px;border-bottom:1px solid var(--loop-rule);background:#fff">
+            <div style="display:flex;flex-direction:column;gap:4px;min-width:0">
+              <button onClick="{{ k.openClient }}" style="padding:0;border:0;background:none;font:inherit;font-size:16px;font-weight:600;color:var(--loop-navy);text-align:left;cursor:pointer;overflow-wrap:anywhere;text-decoration:underline;text-decoration-color:var(--loop-rule-strong);text-underline-offset:3px" style-hover="text-decoration-color:currentColor">{{ k.customer }}</button>
+              <span style="font-size:14px;color:var(--loop-ink)">{{ k.product }} · {{ k.rate }} · {{ k.payout }}</span>
+              <span style="font-size:13px;color:var(--loop-ink-muted)">{{ k.window }} · {{ k.months }}</span>
+              <sc-if value="{{ k.hasAnswer }}" hint-placeholder-val="{{ false }}"><span style="width:fit-content;margin-top:4px;font-size:12px;padding:2px 8px;border-radius:var(--loop-radius-xs);background:var(--loop-navy-100);color:var(--loop-ink)">{{ k.answer }}</span></sc-if>
+            </div>
+            <div style="display:flex;flex-direction:column;gap:8px;min-width:0">
+              <sc-for list="{{ k.issues }}" as="i" hint-placeholder-count="1"><span style="font-size:14px;font-weight:500;color:var(--loop-danger);text-wrap:pretty">{{ i.text }}</span></sc-for>
+              <sc-if value="{{ k.hasQuestion }}" hint-placeholder-val="{{ false }}">
+                <div style="display:flex;flex-direction:column;gap:10px;padding:12px 16px;border-radius:var(--loop-radius-sm);background:var(--loop-warning-50)">
+                  <span style="font-size:14px;font-weight:500;color:var(--loop-warning);text-wrap:pretty">{{ k.question }}</span>
+                  <div style="display:flex;flex-wrap:wrap;gap:8px">
+                    <x-import component-from-global-scope="LOOPDesignSystem_29467e.Button" size="sm" variant="secondary" on-click="{{ k.ansChurned }}" hint-size="110px,36px">Yes, churned</x-import>
+                    <x-import component-from-global-scope="LOOPDesignSystem_29467e.Button" size="sm" variant="secondary" on-click="{{ k.ansActive }}" hint-size="140px,36px">No, did not churn</x-import>
+                    <x-import component-from-global-scope="LOOPDesignSystem_29467e.Button" size="sm" variant="secondary" on-click="{{ k.ansAnnual }}" hint-size="130px,36px">Billed annually</x-import>
+                  </div>
+                </div>
+              </sc-if>
+            </div>
+            <x-import component-from-global-scope="LOOPDesignSystem_29467e.Button" size="sm" variant="secondary" icon="check" on-click="{{ k.dismiss }}" hint-size="110px,36px">Dismiss</x-import>
+          </div>
+        </sc-for>
+      </div>
+
+      <sc-if value="{{ hasDismissed }}" hint-placeholder-val="{{ false }}">
+        <div style="display:flex;flex-direction:column;gap:12px">
+          <div><x-import component-from-global-scope="LOOPDesignSystem_29467e.Button" variant="link" on-click="{{ toggleDismissed }}" hint-size="160px,24px">{{ dismissedToggle }}</x-import></div>
+          <sc-if value="{{ showDismissed }}" hint-placeholder-val="{{ false }}">
+            <div style="display:flex;flex-direction:column;border:1px solid var(--loop-rule);border-radius:var(--loop-radius-md);overflow:hidden">
+              <sc-for list="{{ dismissed }}" as="k" hint-placeholder-count="2">
+                <div style="display:grid;grid-template-columns:minmax(220px,1fr) minmax(0,2.2fr) auto;gap:12px 32px;align-items:start;padding:16px 24px;border-bottom:1px solid var(--loop-rule);background:var(--loop-navy-50)">
+                  <div style="display:flex;flex-direction:column;gap:4px;min-width:0">
+                    <span style="font-size:15px;font-weight:600;color:var(--loop-ink);overflow-wrap:anywhere">{{ k.customer }}</span>
+                    <span style="font-size:13px;color:var(--loop-ink-muted)">{{ k.product }} · {{ k.rate }} · {{ k.dismissedText }}</span>
+                  </div>
+                  <div style="display:flex;flex-direction:column;gap:4px;min-width:0">
+                    <sc-for list="{{ k.issues }}" as="i" hint-placeholder-count="1"><span style="font-size:13px;color:var(--loop-ink-muted);text-wrap:pretty">{{ i.text }}</span></sc-for>
+                    <sc-if value="{{ k.hasQuestion }}" hint-placeholder-val="{{ false }}"><span style="font-size:13px;color:var(--loop-ink-muted);text-wrap:pretty">{{ k.question }}</span></sc-if>
+                  </div>
+                  <x-import component-from-global-scope="LOOPDesignSystem_29467e.Button" size="sm" variant="secondary" on-click="{{ k.restore }}" hint-size="90px,36px">Restore</x-import>
+                </div>
+              </sc-for>
+            </div>
+          </sc-if>
+        </div>
+      </sc-if>
+    </section>
+  </sc-if>
+
+  <!-- CLIENTS LIST -->
+  <sc-if value="{{ showClients }}" hint-placeholder-val="{{ false }}">
+    <section style="display:flex;flex-direction:column;gap:24px">
+      <div style="display:flex;flex-wrap:wrap;align-items:flex-end;justify-content:space-between;gap:16px 32px">
+        <div style="display:flex;flex-direction:column;gap:16px">
+          <x-import component-from-global-scope="LOOPDesignSystem_29467e.FilterChips" label="Status" options="{{ cOptions }}" value="{{ cFilter }}" counts="{{ cCounts }}" on-change="{{ setCFilter }}" hint-size="620px,40px"></x-import>
+          <x-import component-from-global-scope="LOOPDesignSystem_29467e.FilterChips" label="Service" options="{{ products }}" value="{{ cProduct }}" counts="{{ cProdCounts }}" on-change="{{ setCProduct }}" hint-size="560px,40px"></x-import>
+        </div>
+        <div style="width:min(100%,280px)">
+          <x-import component-from-global-scope="LOOPDesignSystem_29467e.Input" label="Search client" type="search" value="{{ search }}" on-change="{{ onSearch }}" hint-size="100%,72px"></x-import>
+        </div>
+      </div>
+
+      <div style="overflow-x:auto;border:1px solid var(--loop-rule);border-radius:var(--loop-radius-md)">
+        <div role="table" style="min-width:860px;font-size:14px">
+          <div role="row" style="display:grid;grid-template-columns:minmax(200px,1.4fr) minmax(220px,1.4fr) 90px 90px 150px 130px;gap:0 16px;padding:12px 20px;background:var(--loop-navy-50);font-weight:600;color:var(--loop-ink-muted);font-size:13px">
+            <span>Client</span><span>Status</span><span style="text-align:right">Referrals</span><span style="text-align:right">To check</span><span style="text-align:right">Customer paid ($)</span><span style="text-align:right">Payout ($)</span>
+          </div>
+          <sc-if value="{{ cNoRows }}" hint-placeholder-val="{{ false }}">
+            <div style="padding:32px 20px;color:var(--loop-ink-muted)">No clients match.</div>
+          </sc-if>
+          <sc-for list="{{ crows }}" as="c" hint-placeholder-count="8">
+            <div role="button" tabIndex="0" onClick="{{ c.open }}" onKeyDown="{{ c.onKey }}" style="display:grid;grid-template-columns:minmax(200px,1.4fr) minmax(220px,1.4fr) 90px 90px 150px 130px;gap:0 16px;padding:14px 20px;align-items:center;cursor:pointer;border-top:1px solid var(--loop-rule);background:#fff" style-hover="background:var(--loop-navy-50)">
+              <span style="display:flex;align-items:center;gap:8px;font-weight:600">
+                <span style="overflow-wrap:anywhere">{{ c.name }}</span>
+                <span style="display:flex;color:var(--loop-navy)"><x-import component-from-global-scope="LOOPDesignSystem_29467e.Icon" name="arrow-right" size="sm" hint-size="16px,16px"></x-import></span>
+              </span>
+              <span style="display:flex"><span style="display:inline-flex;align-items:center;gap:8px;padding:4px 10px;border-radius:999px;background:{{ c.pillBg }};color:{{ c.pillFg }};font-size:13px;font-weight:600;white-space:nowrap"><span style="width:7px;height:7px;border-radius:50%;background:currentColor"></span>{{ c.statusLabel }}</span></span>
+              <span style="text-align:right">{{ c.count }}</span>
+              <span style="text-align:right;font-weight:{{ c.checkWeight }};color:{{ c.checkFg }}">{{ c.toCheck }}</span>
+              <span style="text-align:right">{{ c.paid }}</span>
+              <span style="text-align:right;font-weight:600;color:var(--loop-navy)">{{ c.payout }}</span>
+            </div>
+          </sc-for>
+        </div>
+      </div>
+
+      <div style="font-size:13px;color:var(--loop-ink-muted)">{{ soonLegend }}</div>
+    </section>
+  </sc-if>
+
+  <!-- CLIENT DETAIL -->
+  <sc-if value="{{ showClient }}" hint-placeholder-val="{{ false }}">
+    <section style="display:flex;flex-direction:column;gap:32px">
+      <div style="display:flex;flex-direction:column;gap:16px">
+        <div><x-import component-from-global-scope="LOOPDesignSystem_29467e.Button" variant="link" on-click="{{ goClients }}" hint-size="90px,24px">All clients</x-import></div>
+        <div style="display:flex;flex-wrap:wrap;align-items:center;gap:12px 20px">
+          <h2 style="margin:0;font-size:32px;font-weight:600;color:var(--loop-navy);letter-spacing:-0.02em;overflow-wrap:anywhere">{{ d.name }}</h2>
+          <span style="display:inline-flex;align-items:center;gap:8px;padding:4px 12px;border-radius:999px;background:{{ d.pillBg }};color:{{ d.pillFg }};font-size:14px;font-weight:600;white-space:nowrap"><span style="width:7px;height:7px;border-radius:50%;background:currentColor"></span>{{ d.statusLabel }}</span>
+        </div>
+        <div style="display:flex;flex-wrap:wrap;gap:8px 32px;font-size:14px;color:var(--loop-ink-muted)">
+          <span>Payout <b style="color:var(--loop-navy);font-weight:600;font-size:16px">{{ d.payout }}</b></span>
+          <span>Customer paid <b style="color:var(--loop-ink);font-weight:600;font-size:16px">{{ d.paid }}</b></span>
+          <span>Referrals <b style="color:var(--loop-ink);font-weight:600;font-size:16px">{{ d.count }}</b></span>
+          <span>Payments <b style="color:var(--loop-ink);font-weight:600;font-size:16px">{{ d.lines }}</b></span>
+          <sc-if value="{{ d.hasCheck }}" hint-placeholder-val="{{ false }}"><span style="color:var(--loop-danger);font-weight:600">{{ d.checkText }}</span></sc-if>
+        </div>
+      </div>
+
+      <div style="display:flex;flex-direction:column;gap:12px">
+        <h3 style="margin:0;font-size:18px;font-weight:600;color:var(--loop-ink)">Payout by quarter</h3>
+        <div style="display:flex;flex-wrap:wrap;gap:8px">
+          <sc-for list="{{ d.quarters }}" as="q" hint-placeholder-count="4">
+            <button onClick="{{ q.go }}" style="display:flex;flex-direction:column;align-items:flex-start;gap:2px;padding:10px 14px;border-radius:var(--loop-radius-sm);border:1px solid var(--loop-rule);background:#fff;font:inherit;color:var(--loop-ink);cursor:pointer;text-align:left" style-hover="border-color:var(--loop-navy);background:var(--loop-navy-50)">
+              <span style="font-size:12px;font-weight:600;color:var(--loop-ink-muted)">{{ q.label }}</span>
+              <span style="font-size:15px;font-weight:500">{{ q.amount }}</span>
+            </button>
+          </sc-for>
+        </div>
+      </div>
+
+      <div style="display:flex;flex-direction:column;gap:20px">
+        <h3 style="margin:0;font-size:18px;font-weight:600;color:var(--loop-ink)">Referrals</h3>
+        <sc-for list="{{ d.refs }}" as="w" hint-placeholder-count="2">
+          <article style="display:flex;flex-direction:column;gap:20px;padding:24px;border:1px solid var(--loop-rule);border-radius:var(--loop-radius-lg);background:#fff">
+            <div style="display:flex;flex-wrap:wrap;align-items:flex-start;justify-content:space-between;gap:12px 24px">
+              <div style="display:flex;flex-direction:column;gap:8px">
+                <div style="display:flex;flex-wrap:wrap;align-items:center;gap:8px 16px">
+                  <span style="font-size:20px;font-weight:600;color:var(--loop-navy)">{{ w.product }} · {{ w.rate }}</span>
+                  <span style="display:inline-flex;align-items:center;gap:6px;padding:2px 10px;border-radius:999px;background:{{ w.pillBg }};color:{{ w.pillFg }};font-size:13px;font-weight:600;white-space:nowrap"><span style="width:6px;height:6px;border-radius:50%;background:currentColor"></span>{{ w.statusLabel }}</span>
+                </div>
+                <div style="display:flex;flex-wrap:wrap;align-items:center;gap:8px;font-size:14px">
+                  <span>{{ w.window }}</span>
+                  <span style="font-size:12px;font-weight:{{ w.moWeight }};padding:2px 8px;border-radius:var(--loop-radius-xs);background:{{ w.moBg }};color:{{ w.moFg }};white-space:nowrap">{{ w.months }}</span>
+                  <span style="font-size:13px;color:var(--loop-ink-muted)">{{ w.expectedText }}</span>
+                </div>
+                <sc-if value="{{ w.joined }}" hint-placeholder-val="{{ false }}"><span style="font-size:13px;color:var(--loop-ink-muted)">{{ w.joinedDetail }}</span></sc-if>
+              </div>
+              <div style="display:flex;flex-direction:column;align-items:flex-end;gap:2px">
+                <span style="font-size:24px;font-weight:500;color:var(--loop-navy)">{{ w.payout }}</span>
+                <span style="font-size:13px;color:var(--loop-ink-muted)">{{ w.paidText }}</span>
+              </div>
+            </div>
+
+            <sc-if value="{{ w.hasQuestion }}" hint-placeholder-val="{{ false }}">
+              <div style="display:flex;flex-direction:column;gap:12px;padding:16px;border-radius:var(--loop-radius-sm);background:var(--loop-warning-50)">
+                <span style="font-size:14px;font-weight:600;color:var(--loop-warning)">{{ w.question }}</span>
+                <div style="display:flex;flex-wrap:wrap;gap:8px">
+                  <x-import component-from-global-scope="LOOPDesignSystem_29467e.Button" size="sm" variant="secondary" on-click="{{ w.ansChurned }}" hint-size="110px,36px">Yes, churned</x-import>
+                  <x-import component-from-global-scope="LOOPDesignSystem_29467e.Button" size="sm" variant="secondary" on-click="{{ w.ansActive }}" hint-size="140px,36px">No, did not churn</x-import>
+                  <x-import component-from-global-scope="LOOPDesignSystem_29467e.Button" size="sm" variant="secondary" on-click="{{ w.ansAnnual }}" hint-size="130px,36px">Billed annually</x-import>
+                </div>
+              </div>
+            </sc-if>
+            <sc-if value="{{ w.hasIssues }}" hint-placeholder-val="{{ false }}">
+              <div style="display:flex;flex-direction:column;gap:4px;padding:12px 16px;border-radius:var(--loop-radius-sm);background:var(--loop-danger-50);width:fit-content;max-width:100%">
+                <sc-for list="{{ w.issues }}" as="i" hint-placeholder-count="1"><span style="font-size:14px;font-weight:500;color:var(--loop-danger)">{{ i.text }}</span></sc-for>
+              </div>
+            </sc-if>
+            <sc-if value="{{ w.canResolve }}" hint-placeholder-val="{{ false }}">
+              <div style="margin-top:-8px"><x-import component-from-global-scope="LOOPDesignSystem_29467e.Button" size="sm" variant="secondary" icon="check" on-click="{{ w.resolve }}" hint-size="160px,36px">Mark as resolved</x-import></div>
+            </sc-if>
+            <sc-if value="{{ w.isResolved }}" hint-placeholder-val="{{ false }}">
+              <div style="display:flex;flex-wrap:wrap;align-items:center;gap:8px 16px;padding:12px 16px;border-radius:var(--loop-radius-sm);background:var(--loop-success-50);width:fit-content;max-width:100%">
+                <span style="font-size:14px;font-weight:500;color:var(--loop-success)">{{ w.resolvedText }}</span>
+                <x-import component-from-global-scope="LOOPDesignSystem_29467e.Button" variant="link" on-click="{{ w.reopen }}" hint-size="60px,24px">Reopen</x-import>
+              </div>
+            </sc-if>
+
+            <div style="display:grid;grid-template-columns:repeat(auto-fill,minmax(84px,1fr));gap:6px">
+              <sc-for list="{{ w.cells }}" as="m" hint-placeholder-count="16">
+                <div title="{{ m.title }}" style="display:flex;flex-direction:column;gap:2px;padding:8px 10px;border-radius:var(--loop-radius-xs);border:1px {{ m.borderStyle }} {{ m.border }};background:{{ m.bg }}">
+                  <span style="font-size:11px;font-weight:600;color:var(--loop-ink-muted);white-space:nowrap">{{ m.label }}</span>
+                  <span style="font-size:13px;font-weight:{{ m.weight }};color:{{ m.fg }};white-space:nowrap">{{ m.value }}</span>
+                </div>
+              </sc-for>
+            </div>
+
+            <div style="display:flex;flex-wrap:wrap;align-items:flex-end;gap:16px 24px;padding-top:16px;border-top:1px solid var(--loop-rule)">
+              <x-import component-from-global-scope="LOOPDesignSystem_29467e.ChoiceChips" label="Your answer" options="{{ answerOptions }}" value="{{ w.answerValue }}" on-change="{{ w.setAnswer }}" hint-size="520px,72px"></x-import>
+              <div style="flex:1;min-width:min(100%,260px)">
+                <x-import component-from-global-scope="LOOPDesignSystem_29467e.Input" label="Note" value="{{ w.draft }}" placeholder="e.g. churned from SMS in Jul 2026" on-change="{{ w.onDraft }}" hint-size="100%,72px"></x-import>
+              </div>
+              <sc-if value="{{ w.draftDirty }}" hint-placeholder-val="{{ false }}">
+                <x-import component-from-global-scope="LOOPDesignSystem_29467e.Button" size="sm" on-click="{{ w.saveDraft }}" hint-size="100px,36px">Save note</x-import>
+              </sc-if>
+            </div>
+            <sc-if value="{{ w.hasNoteMeta }}" hint-placeholder-val="{{ false }}"><span style="font-size:12px;color:var(--loop-ink-muted);margin-top:-12px">{{ w.noteMeta }}</span></sc-if>
+
+            <div style="display:flex;flex-direction:column;gap:8px">
+              <div><x-import component-from-global-scope="LOOPDesignSystem_29467e.Button" variant="link" on-click="{{ w.toggleLines }}" hint-size="140px,24px">{{ w.linesToggleText }}</x-import></div>
+              <sc-if value="{{ w.showLines }}" hint-placeholder-val="{{ false }}">
+                <div style="overflow-x:auto">
+                  <div style="min-width:640px">
+                    <div style="display:grid;grid-template-columns:130px minmax(240px,1fr) 140px 120px 90px;gap:0 16px;padding:8px 0;font-size:12px;font-weight:600;color:var(--loop-ink-muted);border-bottom:1px solid var(--loop-rule)">
+                      <span>Paid on</span><span>Window in export</span><span style="text-align:right">Customer paid ($)</span><span style="text-align:right">Payout ($)</span><span style="text-align:right">Actual %</span>
+                    </div>
+                    <sc-for list="{{ w.lineRows }}" as="l" hint-placeholder-count="3">
+                      <div style="display:grid;grid-template-columns:130px minmax(240px,1fr) 140px 120px 90px;gap:0 16px;padding:8px 0;font-size:13px;border-bottom:1px solid var(--loop-rule)">
+                        <span>{{ l.paidOn }}</span><span style="white-space:nowrap">{{ l.window }}</span><span style="text-align:right">{{ l.paid }}</span><span style="text-align:right">{{ l.payout }}</span><span style="text-align:right;color:{{ l.pctFg }}">{{ l.actual }}</span>
+                      </div>
+                    </sc-for>
+                  </div>
+                </div>
+              </sc-if>
+            </div>
+          </article>
+        </sc-for>
+      </div>
+
+      <div style="display:flex;flex-wrap:wrap;gap:8px 20px;font-size:13px;color:var(--loop-ink-muted)">
+        <span>Each box is one calendar month of the window, by payment date. A line paid in the first days of a month counts for the month before when that month has none.</span>
+        <span><b style="color:var(--loop-danger)">No line</b>: a month with no payment line.</span>
+        <span><b style="color:var(--loop-ink)">No line yet</b>: before the first payment, not flagged.</span>
+        <span><b style="color:var(--loop-ink)">Not yet due</b>: after the latest payment in the ledger.</span>
+        <span><b style="color:var(--loop-ink)">Past window</b>: after the months expected for the rate, when the export's end date runs longer.</span>
+      </div>
+    </section>
+  </sc-if>
+
+  <!-- ADD DATA -->
+  <sc-if value="{{ showData }}" hint-placeholder-val="{{ false }}">
+    <section style="display:flex;flex-direction:column;gap:48px">
+      <div style="display:grid;grid-template-columns:repeat(auto-fit,minmax(min(100%,360px),1fr));gap:32px;align-items:start">
+        <div style="display:flex;flex-direction:column;gap:16px;min-width:0">
+          <x-import component-from-global-scope="LOOPDesignSystem_29467e.Textarea" label="Referral Revenue Share export" help="Copy the table from the Klaviyo Partner Portal and paste it here, with or without the header. Paste the full export every time: lines already in the ledger are skipped." rows="{{ 16 }}" value="{{ paste }}" on-change="{{ onPaste }}" placeholder="Partner Account Name&#10;Customer Name&#10;…&#10;Example Partner&#10;northwind.example&#10;Aug 29, 2025&#10;Dec 29, 2026&#10;Sep 29, 2026&#10;Email&#10;-$100.00&#10;15%&#10;-$15.00" hint-size="100%,420px"></x-import>
+          <div style="display:flex;flex-wrap:wrap;gap:12px">
+            <x-import component-from-global-scope="LOOPDesignSystem_29467e.Button" on-click="{{ addData }}" hint-size="150px,44px">Add to ledger</x-import>
+            <x-import component-from-global-scope="LOOPDesignSystem_29467e.Button" variant="secondary" on-click="{{ clearBox }}" hint-size="120px,44px">Clear box</x-import>
+          </div>
+          <sc-if value="{{ hasMsg }}" hint-placeholder-val="{{ false }}">
+            <div role="status" style="padding:12px 16px;border-radius:var(--loop-radius-sm);background:{{ msgBg }};color:{{ msgFg }};font-size:14px;font-weight:500;width:fit-content;max-width:100%">{{ msgText }}</div>
+          </sc-if>
+        </div>
+
+        <aside style="display:flex;flex-direction:column;gap:24px">
+          <div style="display:flex;flex-direction:column;gap:12px;padding:24px;background:var(--loop-navy-50);border-radius:var(--loop-radius-lg)">
+            <div style="font-size:18px;font-weight:600;color:var(--loop-navy)">Ledger file</div>
+            <div style="font-size:14px;color:var(--loop-ink-muted);line-height:1.5">The ledger is kept in this browser. Save it to a file after each quarter, and open the file to restore it here or on another computer. The file includes your answers and notes.</div>
+            <div style="font-size:13px;color:var(--loop-ink-muted)">{{ savedText }}</div>
+            <div style="display:flex;flex-wrap:wrap;gap:12px">
+              <x-import component-from-global-scope="LOOPDesignSystem_29467e.Button" size="sm" icon="download" on-click="{{ saveFile }}" hint-size="160px,36px">Save ledger file</x-import>
+              <x-import component-from-global-scope="LOOPDesignSystem_29467e.Button" size="sm" variant="secondary" on-click="{{ openFile }}" hint-size="150px,36px">Open ledger file</x-import>
+            </div>
+            <input type="file" accept=".json,application/json" ref="{{ fileRef }}" onChange="{{ onFile }}" style="display:none">
+          </div>
+
+          <div style="display:flex;flex-direction:column;gap:12px;padding:0 4px">
+            <sc-if value="{{ notConfirming }}" hint-placeholder-val="{{ true }}">
+              <div><x-import component-from-global-scope="LOOPDesignSystem_29467e.Button" variant="link" on-click="{{ askWipe }}" hint-size="120px,24px">Delete all data</x-import></div>
+            </sc-if>
+            <sc-if value="{{ confirming }}" hint-placeholder-val="{{ false }}">
+              <div style="display:flex;flex-direction:column;gap:12px;padding:16px;border-radius:var(--loop-radius-sm);background:var(--loop-danger-50)">
+                <span style="font-size:14px;font-weight:600;color:var(--loop-danger)">{{ wipeText }}</span>
+                <div style="display:flex;flex-wrap:wrap;gap:12px">
+                  <button onClick="{{ doWipe }}" style="min-height:36px;padding:0 16px;border-radius:var(--loop-radius-sm);border:1px solid var(--loop-danger);background:var(--loop-danger);color:#fff;font:inherit;font-size:14px;font-weight:600;cursor:pointer">Delete everything</button>
+                  <x-import component-from-global-scope="LOOPDesignSystem_29467e.Button" size="sm" variant="secondary" on-click="{{ cancelWipe }}" hint-size="80px,36px">Keep</x-import>
+                </div>
+              </div>
+            </sc-if>
+          </div>
+        </aside>
+      </div>
+
+      <sc-if value="{{ hasLastPaste }}" hint-placeholder-val="{{ false }}">
+        <div style="display:flex;flex-direction:column;gap:16px">
+          <div style="display:flex;flex-wrap:wrap;align-items:baseline;gap:8px 16px">
+            <h3 style="margin:0;font-size:18px;font-weight:600;color:var(--loop-ink)">New in the last paste</h3>
+            <span style="font-size:14px;color:var(--loop-ink-muted)">{{ lastPasteMeta }}</span>
+          </div>
+          <sc-if value="{{ lastPasteNone }}" hint-placeholder-val="{{ false }}">
+            <div style="font-size:14px;color:var(--loop-ink-muted)">No new lines: everything in that paste was already in the ledger.</div>
+          </sc-if>
+          <sc-if value="{{ lastPasteSome }}" hint-placeholder-val="{{ false }}">
+            <div style="overflow-x:auto;border:1px solid var(--loop-rule);border-radius:var(--loop-radius-md)">
+              <div style="min-width:820px;font-size:14px">
+                <div style="display:grid;grid-template-columns:90px minmax(170px,1.3fr) 130px 64px 130px 140px 110px;gap:0 16px;padding:12px 20px;background:var(--loop-navy-50);font-weight:600;color:var(--loop-ink-muted);font-size:13px">
+                  <span>Quarter</span><span>Customer</span><span>Product</span><span style="text-align:right">Rate</span><span>Paid on</span><span style="text-align:right">Customer paid ($)</span><span style="text-align:right">Payout ($)</span>
+                </div>
+                <sc-for list="{{ lastPasteRows }}" as="n" hint-placeholder-count="4">
+                  <div style="display:grid;grid-template-columns:90px minmax(170px,1.3fr) 130px 64px 130px 140px 110px;gap:0 16px;padding:10px 20px;border-top:1px solid var(--loop-rule)">
+                    <span>{{ n.quarter }}</span><span style="font-weight:600;overflow-wrap:anywhere">{{ n.customer }}</span><span>{{ n.product }}</span><span style="text-align:right">{{ n.rate }}</span><span>{{ n.paidOn }}</span><span style="text-align:right">{{ n.paid }}</span><span style="text-align:right;font-weight:600;color:var(--loop-navy)">{{ n.payout }}</span>
+                  </div>
+                </sc-for>
+                <div style="display:grid;grid-template-columns:90px minmax(170px,1.3fr) 130px 64px 130px 140px 110px;gap:0 16px;padding:12px 20px;background:var(--loop-navy-900);color:var(--loop-on-navy);font-weight:600">
+                  <span style="grid-column:1 / span 5">{{ lastPasteTotalLabel }}</span><span style="text-align:right">{{ lastPastePaid }}</span><span style="text-align:right">{{ lastPastePayout }}</span>
+                </div>
+              </div>
+            </div>
+          </sc-if>
+        </div>
+      </sc-if>
+
+      <sc-if value="{{ hasPastes }}" hint-placeholder-val="{{ false }}">
+        <div style="display:flex;flex-direction:column;gap:12px">
+          <h3 style="margin:0;font-size:18px;font-weight:600;color:var(--loop-ink)">Paste history</h3>
+          <div style="display:flex;flex-direction:column;width:fit-content;max-width:100%;font-size:14px">
+            <sc-for list="{{ pastes }}" as="h" hint-placeholder-count="2">
+              <div style="display:grid;grid-template-columns:200px 120px 120px 120px;gap:0 16px;padding:8px 0;border-bottom:1px solid var(--loop-rule)">
+                <span>{{ h.at }}</span><span>{{ h.added }}</span><span style="color:var(--loop-ink-muted)">{{ h.dup }}</span><span style="color:var(--loop-ink-muted)">{{ h.bad }}</span>
+              </div>
+            </sc-for>
+          </div>
+        </div>
+      </sc-if>
+    </section>
+  </sc-if>
+</div>
+</x-dc>
+<script type="text/x-dc" data-dc-script data-props="{&quot;months15&quot;:{&quot;editor&quot;:&quot;int&quot;,&quot;default&quot;:16,&quot;tsType&quot;:&quot;number&quot;,&quot;min&quot;:1,&quot;max&quot;:48,&quot;section&quot;:&quot;Months per rate&quot;},&quot;months20&quot;:{&quot;editor&quot;:&quot;int&quot;,&quot;default&quot;:24,&quot;tsType&quot;:&quot;number&quot;,&quot;min&quot;:1,&quot;max&quot;:48,&quot;section&quot;:&quot;Months per rate&quot;},&quot;months10&quot;:{&quot;editor&quot;:&quot;int&quot;,&quot;default&quot;:12,&quot;tsType&quot;:&quot;number&quot;,&quot;min&quot;:1,&quot;max&quot;:48,&quot;section&quot;:&quot;Months per rate&quot;},&quot;soonDays&quot;:{&quot;editor&quot;:&quot;int&quot;,&quot;default&quot;:60,&quot;tsType&quot;:&quot;number&quot;,&quot;min&quot;:1,&quot;max&quot;:365,&quot;unit&quot;:&quot;days&quot;,&quot;section&quot;:&quot;Status&quot;}}">
+class Component extends DCLogic {
+  state = { ready: false, data: [], notes: {}, pastes: [], view: "quarters", client: null, sel: null, qShow: "All payments",
+    openQ: {}, openLines: {}, drafts: {}, cFilter: "All", search: "", paste: "", msg: null, confirming: false, savedAt: null };
+  K = { data: "klaviyo-referral-ledger-v1", notes: "klaviyo-referral-ledger-notes-v1", pastes: "klaviyo-referral-ledger-pastes-v1", saved: "klaviyo-referral-ledger-saved-at" };
+  ANSWERS = [["churned", "Churned"], ["active", "Did not churn"], ["annual", "Billed annually"], ["", "No answer"]];
+  fileRef = React.createRef();
+
+  componentDidMount() {
+    const h = decodeURIComponent((location.hash || "").slice(1));
+    if (["quarters", "clients", "data", "check"].includes(h)) this.setState({ view: h });
+    else if (h.startsWith("client/")) this.setState({ view: "client", client: h.slice(7) });
+    const wait = () => window.LedgerCore ? this.boot() : setTimeout(wait, 30);
+    wait();
+  }
+  read(k) { try { const s = localStorage.getItem(k); return s ? JSON.parse(s) : null; } catch (e) { return null; } }
+  write(k, v) { try { localStorage.setItem(k, JSON.stringify(v)); } catch (e) {} }
+  async boot() {
+    const L = window.LedgerCore;
+    let data = this.read(this.K.data);
+    if (!data) {
+      try { const t = await (await fetch("sample/referral-export-sample.txt")).text(); data = L.parse(t).rows; this.write(this.K.data, data); } catch (e) { data = []; }
+    }
+    let notes = this.read(this.K.notes);
+    if (!notes) { notes = this.seedNotes(data); this.write(this.K.notes, notes); }
+    let savedAt = null; try { savedAt = localStorage.getItem(this.K.saved); } catch (e) {}
+    this.setState({ ready: true, data, notes, pastes: this.read(this.K.pastes) || [], savedAt });
+  }
+  // sample answer so the prototype opens with one resolved referral
+  seedNotes(data) {
+    const L = window.LedgerCore, notes = {}, at = "2026-10-22";
+    L.referrals(data).list.forEach((r) => {
+      if (r.customer === "cedar.example" && r.product === "SMS") notes[r.id] = { status: "churned", text: "Sample answer: the client left this product.", at };
+    });
+    return notes;
+  }
+  go(view, client) {
+    this.setState({ view, client: client ?? null });
+    try { history.replaceState(null, "", "#" + (view === "client" ? "client/" + encodeURIComponent(client) : view)); } catch (e) {}
+    try { window.scrollTo(0, 0); } catch (e) {}
+  }
+  say(text, ok) { this.setState({ msg: { text, ok } }); }
+  setNote(id, patch) {
+    this.setState((s) => {
+      const cur = s.notes[id] || { status: "", text: "" };
+      const next = { ...cur, ...patch, at: new Date().toISOString().slice(0, 10) };
+      const notes = { ...s.notes };
+      if (!next.status && !next.text && !next.resolved) delete notes[id]; else notes[id] = next;
+      this.write(this.K.notes, notes);
+      const drafts = { ...s.drafts }; if ("text" in patch) delete drafts[id];
+      return { notes, drafts };
+    });
+  }
+
+  addData = () => {
+    const L = window.LedgerCore, text = this.state.paste;
+    if (!text.trim()) return this.say("The box is empty. Paste the Referral export first.", false);
+    const res = L.parse(text);
+    if (res.error) return this.say(res.error, false);
+    if (!res.rows.length) return this.say("No referral lines found. Check that you copied the Referral Revenue Share table, with dates, amounts and percentages.", false);
+    const at = new Date().toISOString();
+    const m = L.merge(this.state.data, res.rows.map((r) => ({ ...r, added: at })));
+    const pastes = [{ at, added: m.added, dup: m.dup, bad: res.bad.length }, ...this.state.pastes];
+    this.write(this.K.data, m.data); this.write(this.K.pastes, pastes);
+    const bad = res.bad.length ? ` ${res.bad.length} line${res.bad.length === 1 ? "" : "s"} could not be read.` : "";
+    this.setState({ data: m.data, pastes, paste: m.added ? "" : text, sel: null, qShow: m.added ? "New in last paste" : "All payments" });
+    this.say(`Added ${m.added} new line${m.added === 1 ? "" : "s"}; skipped ${m.dup} already in the ledger.${bad}`, !res.bad.length);
+  };
+  download(name, text, type) {
+    const a = document.createElement("a"); a.href = URL.createObjectURL(new Blob([text], { type })); a.download = name; a.click();
+    setTimeout(() => URL.revokeObjectURL(a.href), 1000);
+  }
+  saveFile = () => {
+    const now = new Date(), s = this.state;
+    this.download(`klaviyo-referral-ledger-${now.toISOString().slice(0, 10)}.json`,
+      JSON.stringify({ app: "klaviyo-referral-ledger", version: 2, savedAt: now.toISOString(), lines: s.data, notes: s.notes, pastes: s.pastes }, null, 1), "application/json");
+    try { localStorage.setItem(this.K.saved, now.toISOString()); } catch (e) {}
+    this.setState({ savedAt: now.toISOString() });
+  };
+  onFile = (e) => {
+    const f = e.target.files && e.target.files[0]; if (!f) return;
+    const r = new FileReader();
+    r.onload = () => {
+      try {
+        const j = JSON.parse(r.result); const lines = Array.isArray(j) ? j : j.lines;
+        if (!Array.isArray(lines) || lines.some((l) => !l.customer || !l.paid_on)) throw new Error();
+        const notes = (!Array.isArray(j) && j.notes) || {}, pastes = (!Array.isArray(j) && j.pastes) || [];
+        this.write(this.K.data, lines); this.write(this.K.notes, notes); this.write(this.K.pastes, pastes);
+        this.setState({ data: lines, notes, pastes, sel: null, openQ: {}, drafts: {} });
+        this.say(`Opened ${f.name}: ${lines.length} lines and ${Object.keys(notes).length} answers. This replaces the ledger in this browser.`, true);
+      } catch (err) { this.say(`${f.name} is not a ledger file.`, false); }
+      e.target.value = "";
+    };
+    r.readAsText(f);
+  };
+  doWipe = () => {
+    this.write(this.K.data, []); this.write(this.K.notes, {}); this.write(this.K.pastes, []);
+    this.setState({ data: [], notes: {}, pastes: [], confirming: false, sel: null, openQ: {}, drafts: {} }); this.say("All lines deleted.", true);
+  };
+
+  model() {
+    const s = this.state, L = window.LedgerCore;
+    const key = [this.props.months10, this.props.months15, this.props.months20, this.props.soonDays].join("|");
+    if (this._m && this._m.data === s.data && this._m.notes === s.notes && this._m.key === key) return this._m;
+    const data = s.data;
+    const last = data.reduce((a, r) => (r.paid_on > a ? r.paid_on : a), "");
+    const first = data.reduce((a, r) => (r.paid_on < a ? r.paid_on : a), "9999");
+    const { list, bySeg } = L.referrals(data);
+    list.forEach((r) => { r.note = s.notes[r.id] || null; r.an = L.analyze(r, last, r.note, first); });
+    const clients = L.clients(data, L.todayISO(), list);
+    const batch = data.reduce((a, r) => (r.added && r.added > a ? r.added : a), "");
+    this._m = { data, notes: s.notes, key, last, first, list, bySeg, clients, batch };
+    return this._m;
+  }
+  keyToggle(fn) { return (e) => { if (e.key === "Enter" || e.key === " ") { e.preventDefault(); fn(); } }; }
+  answerLabel(st) { const a = this.ANSWERS.find((x) => x[0] === st); return a ? a[1] : "No answer"; }
+  monthsBadge(ref) {
+    const off = ref.monthsOff && !ref.an.windowExcused && !ref.an.resolved;
+    return { months: ref.months.toFixed(1) + " mo", moBg: off ? "var(--loop-danger-50)" : "var(--loop-navy-100)", moFg: off ? "var(--loop-danger)" : "var(--loop-ink-muted)", moWeight: off ? 600 : 400,
+      joined: ref.segments.length > 1, joinedText: `${ref.segments.length} rows in export, joined`,
+      hasAnswer: !!(ref.note && ref.note.status), answerLabel: ref.note && ref.note.status ? this.answerLabel(ref.note.status) : "" };
+  }
+  pill(s) {
+    return s === "active" ? { pillBg: "var(--loop-success-50)", pillFg: "var(--loop-success)" }
+      : s === "soon" ? { pillBg: "var(--loop-warning-50)", pillFg: "var(--loop-warning)" } : { pillBg: "var(--loop-navy-100)", pillFg: "var(--loop-ink-muted)" };
+  }
+  lineRow(l, batch) {
+    const L = window.LedgerCore, a = l.amount ? l.payout / l.amount : null, off = a !== null && Math.abs(a - l.rate) > 0.001;
+    return { paidOn: L.fdate(l.paid_on), window: `${L.fdate(l.start)} → ${L.fdate(l.end)}`, paid: L.money(l.amount), payout: L.money(l.payout),
+      actual: a === null ? "n/d" : L.pct(a), pctFg: off ? "var(--loop-danger)" : "var(--loop-ink)", isNew: !!batch && l.added === batch };
+  }
+  cell(c) {
+    const L = window.LedgerCore;
+    const S = {
+      paid: { bg: "var(--loop-navy-50)", border: "var(--loop-navy-50)", borderStyle: "solid", fg: "var(--loop-navy)", weight: 500, value: "$" + L.money(c.payout) },
+      missing: { bg: "var(--loop-danger-50)", border: "var(--loop-danger)", borderStyle: "solid", fg: "var(--loop-danger)", weight: 600, value: "No line" },
+      pending: { bg: "#fff", border: "var(--loop-rule-strong)", borderStyle: "dashed", fg: "var(--loop-ink-muted)", weight: 400, value: "Not yet due" },
+      lead: { bg: "#fff", border: "var(--loop-rule)", borderStyle: "solid", fg: "var(--loop-ink-muted)", weight: 400, value: "No line yet" },
+      nodata: { bg: "#fff", border: "var(--loop-rule)", borderStyle: "solid", fg: "var(--loop-ink-muted)", weight: 400, value: "Before export" },
+      churned: { bg: "var(--loop-navy-100)", border: "var(--loop-navy-100)", borderStyle: "solid", fg: "var(--loop-ink-muted)", weight: 400, value: "Churned" },
+      beyond: { bg: "#fff", border: "var(--loop-rule)", borderStyle: "dashed", fg: "var(--loop-ink-muted)", weight: 400, value: "Past window" },
+      annual: { bg: "var(--loop-navy-100)", border: "var(--loop-navy-100)", borderStyle: "solid", fg: "var(--loop-ink-muted)", weight: 400, value: "Annual" },
+    }[c.state];
+    return { ...S, label: c.label, title: c.count > 1 ? `${c.count} lines` : "" };
+  }
+
+  exportCSV = () => {
+    const L = window.LedgerCore, M = this.model(), sel = this._sel, Q = this._Q; if (!Q) return;
+    const head = ["Quarter", "Customer", "Product", "Rate", "Referral start", "Referral end", "Window months", "Months expected", "Paid on", "Export window start", "Export window end", "Customer paid", "Payout", "Actual %", "Checks", "Answer", "Note"];
+    const rows = [head];
+    Q.rows.forEach((g) => {
+      const r = g.ref, checks = [...r.an.issues, ...(r.an.question ? ["Open question: churned?"] : [])].join(" ");
+      g.lines.slice().sort((a, b) => a.paid_on.localeCompare(b.paid_on)).forEach((l) => rows.push([
+        (() => { const qq = L.qOf(l.paid_on); return `${qq.y}-Q${qq.q}`; })(), r.customer, r.product, L.pct(r.rate), r.start, r.end, r.months.toFixed(1), r.expected ?? "", l.paid_on, l.start, l.end,
+        l.amount.toFixed(2), l.payout.toFixed(2), l.amount ? L.pct(l.payout / l.amount) : "", checks, r.note && r.note.status ? this.answerLabel(r.note.status) : "", r.note ? r.note.text : ""]));
+    });
+    rows.push(["Total", "", "", "", "", "", "", "", "", "", "", Q.paid.toFixed(2), Q.payout.toFixed(2), "", "", "", ""]);
+    const st = this.state, tag = (st.qShow === "All payments" ? "" : "-new") + (st.qProduct && st.qProduct !== "All services" ? "-" + st.qProduct.toLowerCase().replace(/\W+/g, "-") : "") + ((st.qSearch || "").trim() ? "-filtered" : "");
+    this.download(`klaviyo-referral-${sel.all ? "all-time" : sel.q ? sel.y + "-Q" + sel.q : sel.y}${tag}.csv`, "\ufeff" + L.toCSV(rows), "text/csv");
+  };
+
+  renderVals() {
+    const L = window.LedgerCore, st = this.state, p = this.props;
+    const base = {
+      tabQ: st.view === "quarters", tabC: st.view === "clients" || st.view === "client", tabD: st.view === "data",
+      tabK: st.view === "check", goCheck: () => this.go("check"), checkTab: "To check",
+      goQuarters: () => this.go("quarters"), goClients: () => this.go("clients"), goData: () => this.go("data"),
+      paste: st.paste, onPaste: (e) => this.setState({ paste: e.target.value }), addData: this.addData,
+      clearBox: () => this.setState({ paste: "", msg: null }),
+      hasMsg: !!st.msg, msgText: st.msg ? st.msg.text : "", msgBg: st.msg && st.msg.ok ? "var(--loop-success-50)" : "var(--loop-danger-50)", msgFg: st.msg && st.msg.ok ? "var(--loop-success)" : "var(--loop-danger)",
+      saveFile: this.saveFile, openFile: () => this.fileRef.current && this.fileRef.current.click(), onFile: this.onFile, fileRef: this.fileRef,
+      confirming: st.confirming, notConfirming: !st.confirming, askWipe: () => this.setState({ confirming: true }), cancelWipe: () => this.setState({ confirming: false }), doWipe: this.doWipe,
+      wipeText: `Delete all ${st.data.length.toLocaleString("en-US")} lines and your answers from this browser? A saved ledger file is not affected.`,
+      showData: st.view === "data", answerOptions: this.ANSWERS.map((a) => a[1]), exportCSV: this.exportCSV,
+    };
+    if (!L || !st.ready) return { ...base, freshness: "Loading…", checkTab: "To check", showCheck: false, showQuarters: false, showClients: false, showClient: false, showEmpty: false, hasLastPaste: false, hasPastes: false };
+
+    L.CONFIG.soonDays = p.soonDays ?? 60;
+    Object.assign(L.EXPECTED_MONTHS, { "0.1": p.months10 ?? 12, "0.15": p.months15 ?? 16, "0.2": p.months20 ?? 24 });
+    const M = this.model(), data = M.data, empty = !data.length;
+    const fdt = (iso) => L.fdate(iso.slice(0, 10)) + ", " + iso.slice(11, 16);
+
+    // add data: diff + history
+    const lp = st.pastes[0];
+    const newLines = M.batch ? data.filter((r) => r.added === M.batch).sort((a, b) => b.paid_on.localeCompare(a.paid_on)) : [];
+    const out = { ...base,
+      savedText: st.savedAt ? "Last saved to file on " + L.fdate(st.savedAt.slice(0, 10)) + "." : "Not saved to a file yet.",
+      freshness: empty ? "No data yet" : `Payments through ${L.fdate(M.last)} · ${data.length.toLocaleString("en-US")} lines`,
+      showEmpty: empty && st.view !== "data", showQuarters: !empty && st.view === "quarters", showClients: !empty && st.view === "clients", showClient: false,
+      hasLastPaste: !!lp, lastPasteNone: !!lp && !lp.added, lastPasteSome: !!lp && lp.added > 0 && newLines.length > 0,
+      lastPasteMeta: lp ? `${fdt(lp.at)} · ${lp.added} added, ${lp.dup} skipped` : "",
+      lastPasteRows: newLines.map((r) => { const q = L.qOf(r.paid_on); return { quarter: `${q.y}-Q${q.q}`, customer: r.customer, product: r.product, rate: L.pct(r.rate), paidOn: L.fdate(r.paid_on), paid: L.money(r.amount), payout: L.money(r.payout) }; }),
+      lastPasteTotalLabel: `${newLines.length} new line${newLines.length === 1 ? "" : "s"}`,
+      lastPastePaid: L.money(newLines.reduce((a, r) => a + r.amount, 0)), lastPastePayout: L.money(newLines.reduce((a, r) => a + r.payout, 0)),
+      hasPastes: st.pastes.length > 0,
+      pastes: st.pastes.map((h) => ({ at: fdt(h.at), added: `${h.added} added`, dup: `${h.dup} skipped`, bad: h.bad ? `${h.bad} unreadable` : "" })),
+    };
+    if (empty) return out;
+
+    // quarters
+    const years = [...new Set(data.map((r) => r.paid_on.slice(0, 4)))].sort((a, b) => b - a);
+    const lastQ = L.qOf(M.last);
+    const sel = st.sel && st.sel.all ? { all: true, y: null, q: null } : st.sel && years.includes(String(st.sel.y)) ? st.sel : lastQ;
+    const yearMode = !sel.all && !sel.q;
+    const P = sel.all ? "all time" : yearMode ? String(sel.y) : `Q${sel.q} ${sel.y}`;
+    const totals = L.quarterTotals(data);
+    const tile = (y, q, label, on) => { const v = totals.get(`${y}-Q${q}`);
+      return { label, amount: v === undefined ? "No payments" : "$" + L.money(v), selected: on,
+        bg: on ? "var(--loop-navy)" : "#fff", fg: on ? "var(--loop-on-navy)" : "var(--loop-ink)", border: on ? "var(--loop-navy)" : "var(--loop-rule-strong)",
+        pick: () => this.setState({ sel: { y, q } }) }; };
+    const yearTotal = [1, 2, 3, 4].reduce((a, q) => a + (totals.get(`${sel.y}-Q${q}`) || 0), 0);
+    const qtiles = sel.all ? [] : [{ ...tile(sel.y, null, "Full year", yearMode), amount: "$" + L.money(yearTotal) }, ...[1, 2, 3, 4].map((q) => tile(sel.y, q, `Q${q}`, q === sel.q))];
+    // year chart: payout per quarter, change vs the quarter before
+    const qv = (y, q) => totals.get(`${y}-Q${q}`);
+    const maxV = Math.max(1, ...[1, 2, 3, 4].map((q) => qv(sel.y, q) || 0));
+    const chart = yearMode ? [1, 2, 3, 4].map((q) => {
+      const v = qv(sel.y, q), prev = q === 1 ? qv(sel.y - 1, 4) : qv(sel.y, q - 1);
+      let delta = "", dFg = "var(--loop-ink-muted)";
+      if (v !== undefined && prev) { const p = (v - prev) / prev; delta = Math.abs(p) < 0.0005 ? "= 0%" : (p > 0 ? "▲ +" : "▼ −") + (Math.abs(p) * 100).toFixed(0) + "%"; dFg = Math.abs(p) < 0.0005 ? "var(--loop-delta-flat)" : p > 0 ? "var(--loop-delta-up)" : "var(--loop-delta-down)"; }
+      return { label: `Q${q}`, amount: v === undefined ? "No payments" : "$" + L.money(v), h: v ? Math.max(4, Math.round((v / maxV) * 200)) : 0, has: v !== undefined, none: v === undefined,
+        delta, hasDelta: !!delta, dFg, deltaTitle: q === 1 ? `vs Q4 ${sel.y - 1}` : `vs Q${q - 1}`, pick: () => this.setState({ sel: { y: sel.y, q } }) };
+    }) : [];
+    const onlyNew = st.qShow !== "All payments" && !!M.batch;
+    const Qall = L.quarter(data, sel.y, sel.q, M.bySeg);
+    const products = ["All services", ...[...new Set(data.map((r) => r.product))].sort()];
+    const qProduct = products.includes(st.qProduct) ? st.qProduct : "All services";
+    const qs = (st.qSearch || "").trim().toLowerCase();
+    const filtered = qProduct !== "All services" || qs;
+    const lineOk = (r) => (!onlyNew || r.added === M.batch) && (qProduct === "All services" || r.product === qProduct) && (!qs || r.customer.toLowerCase().includes(qs));
+    const Q = onlyNew || filtered ? L.quarter(data, sel.y, sel.q, M.bySeg, lineOk) : Qall;
+    const prodCounts = {}; products.forEach((p) => { prodCounts[p] = 0; });
+    Qall.rows.forEach((g) => { prodCounts["All services"]++; prodCounts[g.ref.product]++; });
+    this._sel = sel; this._Q = Q;
+    const qrows = Q.rows.map((g) => {
+      const r = g.ref, id = r.id, open = !!st.openQ[id];
+      const toggle = () => this.setState((s) => ({ openQ: { ...s.openQ, [id]: !s.openQ[id] } }));
+      const nNew = M.batch ? g.lines.filter((l) => l.added === M.batch).length : 0;
+      // only the months of this quarter
+      const inQ = (c) => { if (sel.all) return true; const qq = L.qOf(c.start); return qq.y === sel.y && (yearMode || qq.q === sel.q); };
+      const qMissing = r.an.resolved ? [] : r.an.cells.filter((c) => inQ(c) && c.state === "missing");
+      const mids = qMissing.filter((c) => !c.trailing).map((c) => c.label), trails = qMissing.filter((c) => c.trailing).map((c) => c.label);
+      const qIssues = [];
+      if (mids.length) qIssues.push({ text: `No line in ${mids.join(", ")}.`, tone: "var(--loop-danger)" });
+      if (trails.length) qIssues.push(r.note && r.note.status === "active"
+        ? { text: `No line in ${trails.join(", ")}: payouts stopped before the window ended, and the client did not churn.`, tone: "var(--loop-danger)" }
+        : { text: `No line in ${trails.join(", ")}: payouts stopped before the window ended. Did this client churn?`, tone: "var(--loop-warning)" });
+      const qFlag = !r.an.resolved && ((r.monthsOff && !r.an.windowExcused) || qMissing.length > 0);
+      return { ...this.monthsBadge(r), customer: r.customer, product: r.product, rate: L.pct(r.rate),
+        window: `${L.fdate(r.start)} → ${L.fdate(r.end)}`, expected: r.expected ?? "n/d",
+        paid: L.money(g.paid), payout: L.money(g.payout), actual: g.actual === null ? "n/d" : L.pct(g.actual),
+        pctFg: g.pctOff ? "var(--loop-danger)" : "var(--loop-ink)", pctWeight: g.pctOff ? 600 : 400,
+        issues: qIssues, hasQuestion: false,
+        hasResolved: r.an.resolved,
+        isNew: nNew > 0 && !onlyNew, newText: `${nNew} new`,
+        open, rot: open ? 0 : -90, rowBg: open ? "var(--loop-navy-50)" : "#fff", toggle, onKey: this.keyToggle(toggle),
+        flagged: qFlag || g.pctOff, openClient: () => this.go("client", r.customer), openClientText: `Open ${r.customer}`,
+        lines: g.lines.slice().sort((a, b) => a.paid_on.localeCompare(b.paid_on)).map((l) => this.lineRow(l, M.batch)) };
+    });
+    const flags = qrows.filter((r) => r.flagged).length;
+    const E = L.EXPECTED_MONTHS;
+    const newInQ = M.batch ? Qall.rows.reduce((a, g) => a + g.lines.filter((l) => l.added === M.batch).length, 0) : 0;
+
+    // clients
+    const map = { "All": null, "Active": "active", "Expiring soon": "soon", "Expired": "expired", "To check": "check" };
+    const flaggedCount = (c) => c.refs.filter((r) => r.an.flagged).length;
+    const cCounts = { "All": M.clients.length, "Active": 0, "Expiring soon": 0, "Expired": 0, "To check": 0 };
+    M.clients.forEach((c) => { cCounts[c.status === "active" ? "Active" : c.status === "soon" ? "Expiring soon" : "Expired"]++; if (flaggedCount(c)) cCounts["To check"]++; });
+    const q = st.search.trim().toLowerCase();
+    const cProduct = products.includes(st.cProduct) ? st.cProduct : "All services";
+    const cProdCounts = {}; products.forEach((p) => { cProdCounts[p] = 0; });
+    M.clients.forEach((c) => { cProdCounts["All services"]++; [...new Set(c.refs.map((r) => r.product))].forEach((p) => cProdCounts[p]++); });
+    const crows = M.clients.filter((c) => (!map[st.cFilter] || (map[st.cFilter] === "check" ? flaggedCount(c) > 0 : c.status === map[st.cFilter])) && (!q || c.name.toLowerCase().includes(q))
+      && (cProduct === "All services" || c.refs.some((r) => r.product === cProduct))).map((c) => {
+      const open = () => this.go("client", c.name), n = flaggedCount(c);
+      return { ...this.pill(c.status), name: c.name, statusLabel: c.statusLabel, count: c.refs.length, paid: L.money(c.paid), payout: L.money(c.payout),
+        toCheck: n || "–", checkFg: n ? "var(--loop-danger)" : "var(--loop-ink-muted)", checkWeight: n ? 600 : 400, open, onKey: this.keyToggle(open) };
+    });
+
+    // client detail
+    let d = null;
+    const C = st.view === "client" && M.clients.find((c) => c.name === st.client);
+    if (C) {
+      const lines = C.refs.flatMap((r) => r.lines);
+      const qm = new Map(); lines.forEach((l) => { const qq = L.qOf(l.paid_on), k = `${qq.y}-Q${qq.q}`; qm.set(k, (qm.get(k) || 0) + l.payout); });
+      const n = flaggedCount(C);
+      d = { ...this.pill(C.status), name: C.name, statusLabel: C.statusLabel, payout: "$" + L.money(C.payout), paid: "$" + L.money(C.paid), count: C.refs.length, lines: lines.length,
+        hasCheck: n > 0, checkText: `${n} referral${n === 1 ? "" : "s"} to check`,
+        quarters: [...qm.entries()].sort((a, b) => a[0].localeCompare(b[0])).map(([k, v]) => ({ label: k, amount: "$" + L.money(v), go: () => { this.setState({ sel: { y: +k.slice(0, 4), q: +k.slice(-1) }, qShow: "All payments" }); this.go("quarters"); } })),
+        refs: C.refs.map((r) => {
+          const id = r.id, note = r.note || { status: "", text: "" }, draft = st.drafts[id] ?? note.text ?? "";
+          const showLines = !!st.openLines[id];
+          return { ...this.monthsBadge(r), ...this.pill(r.status), product: r.product, rate: L.pct(r.rate), statusLabel: r.statusLabel,
+            window: `${L.fdate(r.start)} → ${L.fdate(r.end)}`,
+            expectedText: r.expected === null ? "No expected length for this rate" : `${r.expected} months expected` + (r.an.windowExcused ? " · shorter because the client churned" : ""),
+            joinedDetail: "Exported as " + r.segments.length + " rows, joined: " + r.segments.map((s) => `${L.fdate(s.start)} → ${L.fdate(s.end)}`).join(" and "),
+            payout: "$" + L.money(r.payout), paidText: `${r.lines.length} payments · customer paid $${L.money(r.paid)}`,
+            hasQuestion: !!r.an.question && !r.an.resolved, question: r.an.question || "",
+            canResolve: !r.an.resolved && (r.an.issues.length > 0 || !!r.an.question), isResolved: r.an.resolved,
+            resolvedText: "Marked as resolved" + (note.resolvedAt ? " on " + L.fdate(note.resolvedAt) : "") + (r.an.issues.length ? ": " + r.an.issues.join(" ") : "."),
+            resolve: () => this.setNote(id, { resolved: true, resolvedAt: new Date().toISOString().slice(0, 10) }),
+            reopen: () => this.setNote(id, { resolved: false, resolvedAt: null }),
+            ansChurned: () => this.setNote(id, { status: "churned" }), ansActive: () => this.setNote(id, { status: "active" }), ansAnnual: () => this.setNote(id, { status: "annual" }),
+            hasIssues: r.an.issues.length > 0 && !r.an.resolved, issues: r.an.issues.map((text) => ({ text })),
+            cells: r.an.cells.map((c) => this.cell(c)),
+            answerValue: this.answerLabel(note.status || ""), setAnswer: (lab) => { const a = this.ANSWERS.find((x) => x[1] === lab); this.setNote(id, { status: a ? a[0] : "" }); },
+            draft, draftDirty: draft !== (note.text || ""), onDraft: (e) => { const v = e.target.value; this.setState((s) => ({ drafts: { ...s.drafts, [id]: v } })); },
+            saveDraft: () => this.setNote(id, { text: (st.drafts[id] ?? "").trim() }),
+            hasNoteMeta: !!(r.note && r.note.at), noteMeta: r.note && r.note.at ? `Answer updated ${L.fdate(r.note.at)}` : "",
+            showLines, linesToggleText: showLines ? "Hide payments" : `Show ${r.lines.length} payment${r.lines.length === 1 ? "" : "s"}`,
+            toggleLines: () => this.setState((s) => ({ openLines: { ...s.openLines, [id]: !s.openLines[id] } })),
+            lineRows: showLines ? r.lines.slice().sort((a, b) => b.paid_on.localeCompare(a.paid_on)).map((l) => this.lineRow(l, null)) : [] };
+        }) };
+    }
+
+    // to check: every referral with a red check or an open question
+    const stamp = () => new Date().toISOString().slice(0, 10);
+    const checkItem = (r) => ({ id: r.id, customer: r.customer, product: r.product, rate: L.pct(r.rate),
+      window: `${L.fdate(r.start)} → ${L.fdate(r.end)}`, months: r.months.toFixed(1) + " mo", payout: "$" + L.money(r.payout),
+      issues: r.an.issues.map((text) => ({ text })), hasIssues: r.an.issues.length > 0, hasQuestion: !!r.an.question, question: r.an.question || "",
+      answer: r.note && r.note.status ? this.answerLabel(r.note.status) : "", hasAnswer: !!(r.note && r.note.status),
+      dismissedText: "Dismissed" + (r.note && r.note.resolvedAt ? " on " + L.fdate(r.note.resolvedAt) : ""),
+      dismiss: () => this.setNote(r.id, { resolved: true, resolvedAt: stamp() }), restore: () => this.setNote(r.id, { resolved: false, resolvedAt: null }),
+      ansChurned: () => this.setNote(r.id, { status: "churned" }), ansActive: () => this.setNote(r.id, { status: "active" }), ansAnnual: () => this.setNote(r.id, { status: "annual" }),
+      openClient: () => this.go("client", r.customer) });
+    const byName = (a, b) => a.customer.localeCompare(b.customer) || a.product.localeCompare(b.product);
+    const checks = M.list.filter((r) => r.an.flagged).sort(byName).map(checkItem);
+    const dismissed = M.list.filter((r) => r.an.resolved && (r.an.issues.length || r.an.question)).sort(byName).map(checkItem);
+    const checkVals = { showCheck: !empty && st.view === "check", tabK: st.view === "check", goCheck: () => this.go("check"),
+      checkTab: checks.length ? `To check (${checks.length})` : "To check", checks, hasChecks: checks.length > 0, noChecks: !checks.length,
+      checkIntro: `${checks.length} referral${checks.length === 1 ? "" : "s"} with a red check or an open question. Answer the question, or dismiss what you have looked at.`,
+      dismissed, hasDismissed: dismissed.length > 0, showDismissed: !!st.showDismissed,
+      dismissedToggle: st.showDismissed ? "Hide dismissed" : `Show ${dismissed.length} dismissed`, toggleDismissed: () => this.setState((s) => ({ showDismissed: !s.showDismissed })) };
+
+    return { ...out, ...checkVals, showClient: !!d, d: d || {}, showClients: out.showClients || (st.view === "client" && !d && !empty),
+      years: ["All time", ...years], yearStr: sel.all ? "All time" : String(sel.y), qtiles, qAll: !!sel.all, qNotAll: !sel.all,
+      setYear: (y) => this.setState({ sel: y === "All time" ? { all: true } : { y: +y, q: null } }),
+      yearMode, chart, chartNote: `Payout per quarter in ${sel.y}. Change against the quarter before. Click a quarter to open it.`,
+      qTitle: (sel.all ? "All-time payout" : yearMode ? (sel.y === lastQ.y ? `Payout so far in ${sel.y}` : `${sel.y} payout`) : `${P} payout`) + (onlyNew ? ", new in last paste" : ""), qPayout: "$" + L.money(Q.payout), qPaid: "$" + L.money(Q.paid), qPayments: Q.payments, qRefCount: Q.rows.length,
+      qHasFlags: flags > 0, qFlagText: `${flags} referral${flags === 1 ? "" : "s"} to check`,
+      hasBatch: !!M.batch, qShowOptions: ["All payments", "New in last paste"], qShow: onlyNew ? "New in last paste" : "All payments",
+      qShowCounts: { "All payments": Qall.payments, "New in last paste": newInQ }, setQShow: (v) => this.setState({ qShow: v }),
+      csvLabel: sel.all ? "Export all-time CSV" : `Export ${P} CSV`,
+      products, qProduct, qProdCounts: prodCounts, setQProduct: (v) => this.setState({ qProduct: v }),
+      qSearch: st.qSearch || "", onQSearch: (e) => this.setState({ qSearch: e.target.value }),
+      qFiltered: !!filtered, qFilterNote: "Totals below cover the filtered referrals only.", clearQFilters: () => this.setState({ qProduct: "All services", qSearch: "" }),
+      cProduct, cProdCounts, setCProduct: (v) => this.setState({ cProduct: v }),
+      qrows, qNoRows: !qrows.length, qEmptyText: filtered ? "No referrals match the search and service filter." : onlyNew ? `No new lines in ${P} from the last paste.` : `No referral payments in ${P}.`,
+      qTotalLabel: `Total ${P}` + (onlyNew ? ", new lines only" : "") + (filtered ? ", filtered" : ""), qPaidN: L.money(Q.paid), qPayoutN: L.money(Q.payout), qActual: Q.paid ? L.pct(Q.payout / Q.paid) : "n/d",
+      expectedLegend: `Months expected: 15% → ${E["0.15"]} (stated by Klaviyo); 20% → ${E["0.2"]} and 10% → ${E["0.1"]} (inferred from the data).`,
+      cOptions: Object.keys(map), cFilter: st.cFilter, cCounts, setCFilter: (v) => this.setState({ cFilter: v }),
+      search: st.search, onSearch: (e) => this.setState({ search: e.target.value }), crows, cNoRows: !crows.length,
+      soonLegend: `Expiring soon: the window ends within ${L.CONFIG.soonDays} days. To check: a referral has a red check or an open question. Open a client to see each month of its windows and record your answers.`,
+    };
+  }
+}
+</script>
+</body>
+</html>
